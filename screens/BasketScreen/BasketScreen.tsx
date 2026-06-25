@@ -1,33 +1,341 @@
-import useFetch from "@/hooks/useFetch";
-import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import {
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+
+interface CartItem {
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    category: string;
+}
+
+const INITIAL_BASKET_ITEMS: CartItem[] = [
+    {
+        id: "1",
+        name: "Laptop MacBook Air",
+        price: 4999,
+        quantity: 1,
+        category: "Electronice",
+    },
+    {
+        id: "2",
+        name: "Căști Wireless Sony",
+        price: 599,
+        quantity: 2,
+        category: "Audio",
+    },
+    {
+        id: "3",
+        name: "Tastatură Mecanică RGB",
+        price: 299,
+        quantity: 1,
+        category: "Accesorii",
+    },
+];
 
 export default function BasketScreen() {
-    const { data } = useFetch("https://dummyjson.com/products/category-list");
+    const [items, setItems] = useState<CartItem[]>(INITIAL_BASKET_ITEMS);
+
+    const increaseQuantity = (id: string) => {
+        const updatedItems = items.map((item) => {
+            if (item.id === id) {
+                return { ...item, quantity: item.quantity + 1 };
+            }
+            return item;
+        });
+        setItems(updatedItems);
+    };
+
+    const decreaseQuantity = (id: string) => {
+        const updatedItems = items.map((item) => {
+            if (item.id === id && item.quantity > 1) {
+                return { ...item, quantity: item.quantity - 1 };
+            }
+            return item;
+        });
+        setItems(updatedItems);
+    };
+
+    const removeItem = (id: string) => {
+        const filteredItems = items.filter((item) => item.id !== id);
+        setItems(filteredItems);
+    };
+
+    const calculateTotal = () => {
+        return items.reduce(
+            (total, item) => total + item.price * item.quantity,
+            0,
+        );
+    };
+
+    const handleCheckout = () => {
+        if (items.length === 0) {
+            Alert.alert(
+                "Coș gol",
+                "Nu aveți produse în coș pentru a plasa o comandă.",
+            );
+            return;
+        }
+        Alert.alert(
+            "Succes!",
+            `Comanda în valoare de ${calculateTotal()} RON a fost plasată.`,
+        );
+        setItems([]);
+    };
 
     return (
-        <TouchableOpacity style={styles.item}>
-            <View>
-                <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-                    {"test"}
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <Text style={styles.headerTitle}>Coșul Meu</Text>
+                <Text style={styles.headerSubtitle}>
+                    {items.length === 0
+                        ? "Fără produse în coș"
+                        : `${items.length} produse active`}
                 </Text>
             </View>
-        </TouchableOpacity>
+
+            {items.length === 0 ? (
+                <View style={styles.emptyContainer}>
+                    <Text style={styles.emptyText}>Coșul tău este gol 🛒</Text>
+                </View>
+            ) : (
+                <ScrollView style={styles.listContainer}>
+                    {items.map((item) => (
+                        <View key={item.id} style={styles.cartCard}>
+                            <View style={styles.productInfo}>
+                                <Text style={styles.productName}>
+                                    {item.name}
+                                </Text>
+                                <Text style={styles.productCategory}>
+                                    {item.category}
+                                </Text>
+                                <Text style={styles.productPrice}>
+                                    {item.price} RON
+                                </Text>
+                            </View>
+
+                            <View style={styles.controlsContainer}>
+                                <View style={styles.quantitySelector}>
+                                    <TouchableOpacity
+                                        style={styles.quantityBtn}
+                                        onPress={() =>
+                                            decreaseQuantity(item.id)
+                                        }
+                                    >
+                                        <Text style={styles.quantityBtnText}>
+                                            -
+                                        </Text>
+                                    </TouchableOpacity>
+
+                                    <Text style={styles.quantityText}>
+                                        {item.quantity}
+                                    </Text>
+
+                                    <TouchableOpacity
+                                        style={styles.quantityBtn}
+                                        onPress={() =>
+                                            increaseQuantity(item.id)
+                                        }
+                                    >
+                                        <Text style={styles.quantityBtnText}>
+                                            +
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+
+                                <TouchableOpacity
+                                    style={styles.deleteBtn}
+                                    onPress={() => removeItem(item.id)}
+                                >
+                                    <Text style={styles.deleteBtnText}>
+                                        Șterge
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    ))}
+                </ScrollView>
+            )}
+
+            {items.length > 0 && (
+                <View style={styles.footer}>
+                    <View style={styles.totalRow}>
+                        <Text style={styles.totalLabel}>Total de plată:</Text>
+                        <Text style={styles.totalValue}>
+                            {calculateTotal()} RON
+                        </Text>
+                    </View>
+
+                    <TouchableOpacity
+                        style={styles.checkoutBtn}
+                        onPress={handleCheckout}
+                    >
+                        <Text style={styles.checkoutBtnText}>
+                            Finalizează Comanda
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 50,
+        backgroundColor: "#F7F8FA",
+        paddingTop: 60,
     },
-    item: {
-        borderBottomWidth: 5,
-        borderWidth: 2,
+    header: {
+        paddingHorizontal: 20,
+        marginBottom: 15,
+    },
+    headerTitle: {
+        fontSize: 28,
+        fontWeight: "bold",
+        color: "#1A1A1A",
+    },
+    headerSubtitle: {
+        fontSize: 14,
+        color: "#7E8A97",
+        marginTop: 4,
+    },
+    listContainer: {
+        flex: 1,
+        paddingHorizontal: 16,
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    emptyText: {
+        fontSize: 18,
+        color: "#7E8A97",
+    },
+    cartCard: {
+        backgroundColor: "#FFFFFF",
+        borderRadius: 16,
         padding: 16,
-        margin: 8,
-        borderBottomColor: "#000000",
-        borderRadius: 20,
-        backgroundColor: "rgba(255, 255, 255, 0.8)", // O mică transparență pentru ca fundalul să se vadă frumos
+        marginBottom: 12,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 2,
+    },
+    productInfo: {
+        flex: 1,
+        paddingRight: 10,
+    },
+    productName: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#1A1A1A",
+        marginBottom: 4,
+    },
+    productCategory: {
+        fontSize: 12,
+        color: "#7E8A97",
+        marginBottom: 8,
+        textTransform: "uppercase",
+    },
+    productPrice: {
+        fontSize: 16,
+        fontWeight: "700",
+        color: "#007AFF",
+    },
+    controlsContainer: {
+        alignItems: "flex-end",
+    },
+    quantitySelector: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#F2F3F5",
+        borderRadius: 8,
+        padding: 4,
+        marginBottom: 10,
+    },
+    quantityBtn: {
+        width: 28,
+        height: 28,
+        backgroundColor: "#FFFFFF",
+        borderRadius: 6,
+        justifyContent: "center",
+        alignItems: "center",
+        elevation: 1,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 1,
+    },
+    quantityBtnText: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: "#1A1A1A",
+    },
+    quantityText: {
+        fontSize: 14,
+        fontWeight: "600",
+        paddingHorizontal: 12,
+        color: "#1A1A1A",
+    },
+    deleteBtn: {
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+    },
+    deleteBtnText: {
+        fontSize: 13,
+        color: "#FF3B30",
+        fontWeight: "600",
+    },
+    footer: {
+        backgroundColor: "#FFFFFF",
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        padding: 24,
+        paddingBottom: 100,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 10,
+    },
+    totalRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 16,
+    },
+    totalLabel: {
+        fontSize: 16,
+        color: "#7E8A97",
+        fontWeight: "500",
+    },
+    totalValue: {
+        fontSize: 22,
+        fontWeight: "bold",
+        color: "#1A1A1A",
+    },
+    checkoutBtn: {
+        backgroundColor: "#007AFF",
+        borderRadius: 14,
+        paddingVertical: 16,
+        alignItems: "center",
+    },
+    checkoutBtnText: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: "#FFFFFF",
     },
 });
