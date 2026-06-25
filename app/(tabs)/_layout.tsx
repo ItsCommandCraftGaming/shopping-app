@@ -1,35 +1,36 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
+import type { ImageSourcePropType } from "react-native";
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+const TAB_ICON_SIZE = 24;
+
+const LUCIDE_HOME_ICON = lucideTabIcon(
+  "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",
+);
+
+const LUCIDE_BASKET_ICON = lucideTabIcon(
+  "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",
+);
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-    </Tabs>
+    <NativeTabs>
+      <NativeTabs.Trigger name="home">
+        <Label>Home</Label>
+        <Icon src={LUCIDE_HOME_ICON} />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="basket">
+        <Label>Basket</Label>
+        <Icon src={LUCIDE_BASKET_ICON} />
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
+}
+
+// SDK 54 native tabs accept image sources here, not arbitrary Lucide React elements.
+function lucideTabIcon(base64: string): ImageSourcePropType {
+  return {
+    uri: `data:image/png;base64,${base64}`,
+    width: TAB_ICON_SIZE,
+    height: TAB_ICON_SIZE,
+  };
 }
