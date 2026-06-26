@@ -1,24 +1,67 @@
 import useFetch from "@/hooks/useFetch";
+import { Ionicons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
+    ActivityIndicator,
     FlatList,
+    Image,
     ImageBackground,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function HomeScreen() {
-    const { data } = useFetch("https://dummyjson.com/products/category-list");
+export default function ProductsScreen() {
+    const router = useRouter();
+    const { products } = useLocalSearchParams<{ products?: string }>();
+
+    // Fetch products based on the selected category slug
+    const { data, loading } = useFetch(
+        products
+            ? `https://dummyjson.com/products/category/${products}`
+            : "https://dummyjson.com/products",
+    );
+
+    const productsList = (data as any)?.products || [];
 
     const renderItem = ({ item }: { item: any }) => {
         return (
-            <TouchableOpacity style={styles.item}>
-                <View>
-                    <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-                        {item}
-                    </Text>
+            <TouchableOpacity
+                style={styles.item}
+                activeOpacity={0.8}
+                onPress={() => {
+                    router.push({
+                        pathname: "/home/[products]/[articles]",
+                        params: { products: products || "all", articles: item.id.toString() },
+                    });
+                }}
+            >
+                <View style={styles.glassContainer}>
+                    {item.thumbnail ? (
+                        <Image
+                            source={{ uri: item.thumbnail }}
+                            style={styles.productImage}
+                            resizeMode="contain"
+                        />
+                    ) : (
+                        <View style={styles.placeholderImage}>
+                            <Ionicons
+                                name="image-outline"
+                                size={40}
+                                color="#888"
+                            />
+                        </View>
+                    )}
+                    <View style={styles.infoContainer}>
+                        <Text style={styles.productTitle} numberOfLines={1}>
+                            {item.title}
+                        </Text>
+                        <Text style={styles.productPrice}>${item.price}</Text>
+                    </View>
                 </View>
             </TouchableOpacity>
         );
@@ -32,16 +75,52 @@ export default function HomeScreen() {
             resizeMode="cover"
             style={styles.container}
         >
-            <View>
-                <Text style={styles.title}>Products screen</Text>
+            {loading ? (
+                <View style={styles.loaderContainer}>
+                    <ActivityIndicator size="large" color="#ffffff" />
+                </View>
+            ) : (
+                <FlatList
+                    data={productsList}
+                    renderItem={renderItem}
+                    keyExtractor={(item, index) =>
+                        item?.id?.toString() || index.toString()
+                    }
+                    numColumns={2}
+                    contentContainerStyle={styles.listContent}
+                    initialNumToRender={10}
+                    maxToRenderPerBatch={10}
+                />
+            )}
+
+            {/* Floating Blurred Header */}
+            <View style={styles.headerWrapper}>
+                <BlurView
+                    intensity={20}
+                    tint="light"
+                    style={StyleSheet.absoluteFillObject}
+                    experimentalBlurMethod="dimezisBlurView"
+                />
+                <SafeAreaView edges={["top"]} style={styles.headerSafeArea}>
+                    <View style={styles.headerRow}>
+                        <TouchableOpacity
+                            onPress={() => router.back()}
+                            style={styles.backButton}
+                            activeOpacity={0.7}
+                        >
+                            <Ionicons
+                                name="arrow-back"
+                                size={24}
+                                color="#000"
+                            />
+                        </TouchableOpacity>
+
+                        <Text style={styles.title} numberOfLines={1}>
+                            {products || "Products"}
+                        </Text>
+                    </View>
+                </SafeAreaView>
             </View>
-            <FlatList
-                data={data}
-                renderItem={renderItem}
-                keyExtractor={(item) => item}
-                numColumns={2}
-            />
-            <View style={styles.footer}></View>
         </ImageBackground>
     );
 }
@@ -49,28 +128,94 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 50,
+    },
+    headerWrapper: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        borderBottomWidth: 1,
+        borderBottomColor: "rgba(255, 255, 255, 0.4)",
+        overflow: "hidden",
+    },
+    headerSafeArea: {
+        paddingBottom: 15,
+    },
+    headerRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 16,
+        marginTop: 10,
+    },
+    backButton: {
+        backgroundColor: "rgba(255, 255, 255, 0.5)",
+        borderRadius: 20,
+        padding: 8,
+        marginRight: 12,
     },
     title: {
-        fontSize: 28,
+        fontSize: 24,
         fontWeight: "bold",
         color: "#000000",
-        marginHorizontal: 16,
-        marginVertical: 10,
+        textTransform: "capitalize",
+        flex: 1,
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    listContent: {
+        paddingTop: 110, // Gives space for the absolute header
+        paddingBottom: 40,
+        paddingHorizontal: 8,
     },
     item: {
         flex: 1,
-        padding: 30,
         margin: 8,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 3,
         borderRadius: 20,
-        backgroundColor: "rgba(255, 255, 255, 1)", // O mică transparență pentru ca fundalul să se vadă frumos
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.12,
+        shadowRadius: 10,
+        elevation: 3,
     },
-    footer: {
-        paddingBottom: 30,
+    glassContainer: {
+        borderRadius: 20,
+        overflow: "hidden",
+        backgroundColor: "rgba(255, 255, 255, 1)", // More opaque since it doesn't have blur
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.8)",
+    },
+    productImage: {
+        width: "100%",
+        height: 150,
+        backgroundColor: "rgba(255, 255, 255, 0.5)",
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        marginTop: 10,
+    },
+    placeholderImage: {
+        width: "100%",
+        height: 120,
+        backgroundColor: "rgba(255, 255, 255, 1)",
+        justifyContent: "center",
+        alignItems: "center",
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+    },
+    infoContainer: {
+        padding: 12,
+    },
+    productTitle: {
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#1e1e1e",
+        marginBottom: 4,
+    },
+    productPrice: {
+        fontSize: 14,
+        fontWeight: "700",
+        color: "#0c5727",
     },
 });

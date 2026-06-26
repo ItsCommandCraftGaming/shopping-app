@@ -1,2 +1,2 @@
-export { default } from "./BasketScreen";
+export { default } from "./ProductsScreen";
 

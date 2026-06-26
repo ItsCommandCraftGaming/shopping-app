@@ -20,7 +20,7 @@ const useFetch = (url: string) => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [url]);
 
   return { data, loading, error };
 };

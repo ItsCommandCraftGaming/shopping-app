@@ -1,4 +1,5 @@
 import useFetch from "@/hooks/useFetch";
+import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
@@ -9,9 +10,10 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
-    const { data } = useFetch("https://dummyjson.com/products/category-list");
+    const { data } = useFetch("https://dummyjson.com/products/categories");
 
     const router = useRouter();
 
@@ -22,14 +24,12 @@ export default function HomeScreen() {
                 onPress={() => {
                     router.push({
                         pathname: "/home/[products]",
-                        params: { products: item },
+                        params: { products: item.slug },
                     });
                 }}
             >
-                <View>
-                    <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-                        {item}
-                    </Text>
+                <View style={styles.glassContainer}>
+                    <Text style={styles.itemText}>{item.name}</Text>
                 </View>
             </TouchableOpacity>
         );
@@ -43,16 +43,26 @@ export default function HomeScreen() {
             resizeMode="cover"
             style={styles.container}
         >
-            <View>
-                <Text style={styles.title}>Categorii</Text>
-            </View>
+            {/* List scrolls under the header */}
             <FlatList
                 data={data}
                 renderItem={renderItem}
-                keyExtractor={(item) => item}
+                keyExtractor={(item) => item.slug}
                 numColumns={2}
+                contentContainerStyle={styles.listContent}
             />
-            <View style={styles.footer}></View>
+
+            {/* Floating Blurred Header */}
+            <View style={styles.headerWrapper}>
+                <BlurView
+                    intensity={20}
+                    style={StyleSheet.absoluteFillObject}
+                    experimentalBlurMethod="dimezisBlurView"
+                />
+                <SafeAreaView edges={["top"]} style={styles.headerSafeArea}>
+                    <Text style={styles.title}>Categorii</Text>
+                </SafeAreaView>
+            </View>
         </ImageBackground>
     );
 }
@@ -60,28 +70,57 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 50,
+    },
+    headerWrapper: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        borderBottomWidth: 1,
+        borderBottomColor: "rgba(255, 255, 255, 1)",
+        overflow: "hidden",
+    },
+    headerSafeArea: {
+        paddingBottom: 15,
     },
     title: {
         fontSize: 28,
         fontWeight: "bold",
         color: "#000000",
         marginHorizontal: 16,
-        marginVertical: 10,
+        marginTop: 10,
+    },
+    listContent: {
+        paddingTop: 110, // Gives space for the absolute header
+        paddingBottom: 40,
+        paddingHorizontal: 8,
     },
     item: {
         flex: 1,
-        padding: 30,
         margin: 8,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 3,
         borderRadius: 20,
-        backgroundColor: "rgba(255, 255, 255, 1)", // O mică transparență pentru ca fundalul să se vadă frumos
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.12,
+        shadowRadius: 10,
+        elevation: 3,
     },
-    footer: {
-        paddingBottom: 30,
+    glassContainer: {
+        paddingVertical: 25,
+        paddingHorizontal: 15,
+        borderRadius: 20,
+        overflow: "hidden",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(255, 255, 255, 1)", // More opaque since it doesn't have blur
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.8)",
+    },
+    itemText: {
+        fontSize: 16,
+        fontWeight: "700",
+        color: "#2C3E50",
+        textAlign: "center",
+        textTransform: "capitalize",
     },
 });
