@@ -60,7 +60,20 @@ export default function ProductsScreen() {
                         <Text style={styles.productTitle} numberOfLines={1}>
                             {item.title}
                         </Text>
-                        <Text style={styles.productPrice}>${item.price}</Text>
+                        <View style={styles.priceRow}>
+                            <Text style={styles.productPrice}>${item.price}</Text>
+                            <TouchableOpacity
+                                style={styles.addToCartSmallBtn}
+                                onPress={(e) => {
+                                    // e.stopPropagation(); is sometimes needed in React Native Web, 
+                                    // but on mobile TouchableOpacity inside TouchableOpacity needs this to prevent parent trigger:
+                                    // we can just let it bubble or handle it in Redux/Zustand later.
+                                    // For now it's a visual button!
+                                }}
+                            >
+                                <Ionicons name="cart" size={18} color="#FFF" />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </TouchableOpacity>
@@ -167,7 +180,7 @@ const styles = StyleSheet.create({
     },
     listContent: {
         paddingTop: 110, // Gives space for the absolute header
-        paddingBottom: 40,
+        paddingBottom: 120, // Enough space to clear bottom tab bar & safe area
         paddingHorizontal: 8,
     },
     item: {
@@ -213,9 +226,22 @@ const styles = StyleSheet.create({
         color: "#1e1e1e",
         marginBottom: 4,
     },
+    priceRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+    },
     productPrice: {
-        fontSize: 14,
-        fontWeight: "700",
-        color: "#0c5727",
+        fontSize: 16,
+        fontWeight: "900",
+        color: "#007AFF", // Updated to match the blue theme used in ArticlesScreen
+    },
+    addToCartSmallBtn: {
+        backgroundColor: "#1A1A1A",
+        borderRadius: 12,
+        width: 32,
+        height: 32,
+        justifyContent: "center",
+        alignItems: "center",
     },
 });

@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
         overflow: "hidden",
     },
     headerSafeArea: {
-        paddingBottom: 15,
+        paddingBottom: 20,
     },
     title: {
         fontSize: 28,
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     },
     listContent: {
         paddingTop: 110, // Gives space for the absolute header
-        paddingBottom: 40,
+        paddingBottom: 120, // Enough space to clear bottom tab bar & safe area
         paddingHorizontal: 8,
     },
     item: {
