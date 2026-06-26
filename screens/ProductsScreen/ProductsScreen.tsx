@@ -1,5 +1,4 @@
 import useFetch from "@/hooks/useFetch";
-import { useRouter } from "expo-router";
 import React from "react";
 import {
     FlatList,
@@ -13,19 +12,9 @@ import {
 export default function HomeScreen() {
     const { data } = useFetch("https://dummyjson.com/products/category-list");
 
-    const router = useRouter();
-
     const renderItem = ({ item }: { item: any }) => {
         return (
-            <TouchableOpacity
-                style={styles.item}
-                onPress={() => {
-                    router.push({
-                        pathname: "/home/[products]",
-                        params: { products: item },
-                    });
-                }}
-            >
+            <TouchableOpacity style={styles.item}>
                 <View>
                     <Text style={{ fontSize: 18, fontWeight: "bold" }}>
                         {item}
@@ -44,7 +33,7 @@ export default function HomeScreen() {
             style={styles.container}
         >
             <View>
-                <Text style={styles.title}>Categorii</Text>
+                <Text style={styles.title}>Products screen</Text>
             </View>
             <FlatList
                 data={data}
