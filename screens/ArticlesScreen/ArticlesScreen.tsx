@@ -22,6 +22,7 @@ import {
     SafeAreaView,
     useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import { useCart } from "../../context/CartContext";
 
 if (Platform.OS === "android") {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -36,6 +37,7 @@ export default function ArticlesScreen() {
     // In the route /home/[products]/[articles], "articles" represents the product ID.
     const { articles } = useLocalSearchParams<{ articles: string }>();
     const insets = useSafeAreaInsets();
+    const { addToCart } = useCart();
 
     const { data: product, loading } = useFetch(
         articles ? `https://dummyjson.com/products/${articles}` : "",
@@ -230,6 +232,14 @@ export default function ArticlesScreen() {
                     <TouchableOpacity
                         style={styles.addToCartButton}
                         activeOpacity={0.8}
+                        onPress={() => {
+                            addToCart({
+                                id: prod.id.toString(),
+                                name: prod.title,
+                                price: prod.price,
+                                category: prod.category
+                            });
+                        }}
                     >
                         <Text style={styles.addToCartText}>Adaugă în Coș</Text>
                     </TouchableOpacity>

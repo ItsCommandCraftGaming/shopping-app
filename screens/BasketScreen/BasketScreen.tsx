@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
     Alert,
     ScrollView,
@@ -7,73 +7,10 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-
-interface CartItem {
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-    category: string;
-}
-
-const INITIAL_BASKET_ITEMS: CartItem[] = [
-    {
-        id: "1",
-        name: "Laptop MacBook Air",
-        price: 4999,
-        quantity: 1,
-        category: "Electronice",
-    },
-    {
-        id: "2",
-        name: "Căști Wireless Sony",
-        price: 599,
-        quantity: 2,
-        category: "Audio",
-    },
-    {
-        id: "3",
-        name: "Tastatură Mecanică RGB",
-        price: 299,
-        quantity: 1,
-        category: "Accesorii",
-    },
-];
+import { useCart } from "../../context/CartContext";
 
 export default function BasketScreen() {
-    const [items, setItems] = useState<CartItem[]>(INITIAL_BASKET_ITEMS);
-
-    const increaseQuantity = (id: string) => {
-        const updatedItems = items.map((item) => {
-            if (item.id === id) {
-                return { ...item, quantity: item.quantity + 1 };
-            }
-            return item;
-        });
-        setItems(updatedItems);
-    };
-
-    const decreaseQuantity = (id: string) => {
-        const updatedItems = items.map((item) => {
-            if (item.id === id && item.quantity > 1) {
-                return { ...item, quantity: item.quantity - 1 };
-            }
-            return item;
-        });
-        setItems(updatedItems);
-    };
-
-    const removeItem = (id: string) => {
-        const filteredItems = items.filter((item) => item.id !== id);
-        setItems(filteredItems);
-    };
-
-    const calculateTotal = () => {
-        return items.reduce(
-            (total, item) => total + item.price * item.quantity,
-            0,
-        );
-    };
+    const { items, increaseQuantity, decreaseQuantity, removeItem, calculateTotal, clearCart } = useCart();
 
     const handleCheckout = () => {
         if (items.length === 0) {
@@ -87,7 +24,7 @@ export default function BasketScreen() {
             "Succes!",
             `Comanda în valoare de ${calculateTotal()} RON a fost plasată.`,
         );
-        setItems([]);
+        clearCart();
     };
 
     return (

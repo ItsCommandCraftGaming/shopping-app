@@ -8,6 +8,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
+import { useCart } from "../../context/CartContext";
 
 function TabBarBackground() {
   const pathname = usePathname();
@@ -64,7 +65,7 @@ function TabBarBackground() {
             <LinearGradient
               colors={[
                 "rgba(255, 255, 255, 0)",
-                "rgba(255, 100, 100, 0.2)",
+                "rgba(100, 150, 255, 0.2)",
                 "rgba(255, 255, 255, 0)",
               ]}
               start={{ x: 0, y: 0 }}
@@ -79,6 +80,9 @@ function TabBarBackground() {
 }
 
 export default function TabLayout() {
+  const { items } = useCart();
+  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+
   return (
     <Tabs
       screenOptions={{
@@ -129,6 +133,7 @@ export default function TabLayout() {
         name="basket"
         options={{
           title: "Coș",
+          tabBarBadge: totalItems > 0 ? totalItems : undefined,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "cart" : "cart-outline"}

@@ -14,10 +14,12 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useCart } from "../../context/CartContext";
 
 export default function ProductsScreen() {
     const router = useRouter();
     const { products } = useLocalSearchParams<{ products?: string }>();
+    const { addToCart } = useCart();
 
     // Fetch products based on the selected category slug
     const { data, loading } = useFetch(
@@ -65,10 +67,12 @@ export default function ProductsScreen() {
                             <TouchableOpacity
                                 style={styles.addToCartSmallBtn}
                                 onPress={(e) => {
-                                    // e.stopPropagation(); is sometimes needed in React Native Web, 
-                                    // but on mobile TouchableOpacity inside TouchableOpacity needs this to prevent parent trigger:
-                                    // we can just let it bubble or handle it in Redux/Zustand later.
-                                    // For now it's a visual button!
+                                    addToCart({
+                                        id: item.id.toString(),
+                                        name: item.title,
+                                        price: item.price,
+                                        category: item.category || "General"
+                                    });
                                 }}
                             >
                                 <Ionicons name="cart" size={18} color="#FFF" />
