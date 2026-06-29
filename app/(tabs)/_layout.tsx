@@ -9,22 +9,33 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useCart } from "../../hooks/useCart";
+import { useFavourites } from "../../hooks/useFavourites";
 
 function TabBarBackground() {
   const pathname = usePathname();
   const isBasket = pathname.includes("basket");
+  const isFav = pathname.includes("favourites");
 
-  // Animate the position of the glow container (50% width)
-  const sliderStyle = useAnimatedStyle(() => ({
-    left: withTiming(isBasket ? "50%" : "0%", {
-      duration: 400,
-      easing: Easing.out(Easing.cubic),
-    }),
-  }));
+  // Animate the position of the glow container (33.33% width)
+  const sliderStyle = useAnimatedStyle(() => {
+    let left = "0%";
+    if (isFav) left = "33.33%";
+    if (isBasket) left = "66.66%";
+    return {
+      left: withTiming(left, {
+        duration: 400,
+        easing: Easing.out(Easing.cubic),
+      }),
+    };
+  });
 
   // Cross-fade the colors inside the slider
   const homeOpacity = useAnimatedStyle(() => ({
-    opacity: withTiming(isBasket ? 0 : 1, { duration: 400 }),
+    opacity: withTiming(!isFav && !isBasket ? 1 : 0, { duration: 400 }),
+  }));
+
+  const favOpacity = useAnimatedStyle(() => ({
+    opacity: withTiming(isFav ? 1 : 0, { duration: 400 }),
   }));
 
   const basketOpacity = useAnimatedStyle(() => ({
@@ -44,7 +55,7 @@ function TabBarBackground() {
       >
         <Animated.View
           style={[
-            { position: "absolute", top: 0, bottom: 0, width: "50%" },
+            { position: "absolute", top: 0, bottom: 0, width: "33.33%" },
             sliderStyle,
           ]}
         >
@@ -53,6 +64,19 @@ function TabBarBackground() {
               colors={[
                 "rgba(255, 255, 255, 0)",
                 "rgba(100, 150, 255, 0.2)",
+                "rgba(255, 255, 255, 0)",
+              ]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={StyleSheet.absoluteFillObject}
+            />
+          </Animated.View>
+
+          <Animated.View style={[StyleSheet.absoluteFillObject, favOpacity]}>
+            <LinearGradient
+              colors={[
+                "rgba(255, 255, 255, 0)",
+                "rgba(255, 100, 150, 0.2)",
                 "rgba(255, 255, 255, 0)",
               ]}
               start={{ x: 0, y: 0 }}
@@ -81,6 +105,7 @@ function TabBarBackground() {
 
 export default function TabLayout() {
   const { items } = useCart();
+  const { favourites } = useFavourites();
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
@@ -91,8 +116,8 @@ export default function TabLayout() {
         tabBarStyle: {
           position: "absolute",
           bottom: 25,
-          left: 90,
-          right: 90,
+          left: 50,
+          right: 50,
           backgroundColor: "rgba(255, 255, 255, 0.3)",
           borderRadius: 35,
           height: 70,
@@ -124,6 +149,20 @@ export default function TabLayout() {
             <Ionicons
               name={focused ? "home" : "home-outline"}
               size={26}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="favourites"
+        options={{
+          title: "Favorite",
+          tabBarBadge: favourites.length > 0 ? favourites.length : undefined,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "heart" : "heart-outline"}
+              size={28}
               color={color}
             />
           ),

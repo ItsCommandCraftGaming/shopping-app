@@ -25,7 +25,10 @@ export default function CheckoutScreen() {
     }
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView 
+            style={styles.container}
+            contentContainerStyle={styles.scrollContent}
+        >
             <Text style={styles.title}>Sumar Comandă</Text>
             
             <View style={styles.section}>
@@ -68,7 +71,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#F7F8FA",
+    },
+    scrollContent: {
         padding: 20,
+        paddingBottom: 60,
     },
     title: {
         fontSize: 24,

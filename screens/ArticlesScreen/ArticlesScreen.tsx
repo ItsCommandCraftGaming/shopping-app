@@ -23,6 +23,7 @@ import {
     useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { useCart } from "../../hooks/useCart";
+import { useFavourites } from "../../hooks/useFavourites";
 
 if (Platform.OS === "android") {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -38,6 +39,7 @@ export default function ArticlesScreen() {
     const { articles } = useLocalSearchParams<{ articles: string }>();
     const insets = useSafeAreaInsets();
     const { addToCart } = useCart();
+    const { toggleFavourite, isFavourite } = useFavourites();
 
     const { data: product, loading } = useFetch(
         articles ? `https://dummyjson.com/products/${articles}` : "",
@@ -218,6 +220,25 @@ export default function ArticlesScreen() {
 
                 {/* Inner container gets the dynamic padding */}
                 <Animated.View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 16) + 90, paddingTop: barPaddingTop }]}>
+                    <TouchableOpacity
+                        style={styles.favButton}
+                        activeOpacity={0.8}
+                        onPress={() => {
+                            toggleFavourite({
+                                id: prod.id.toString(),
+                                name: prod.title,
+                                price: prod.price,
+                                category: prod.category,
+                                image: prod.thumbnail
+                            });
+                        }}
+                    >
+                        <Ionicons
+                            name={isFavourite(prod.id.toString()) ? "heart" : "heart-outline"}
+                            size={28}
+                            color={isFavourite(prod.id.toString()) ? "#FF3B30" : "#1A1A1A"}
+                        />
+                    </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.goToBasketButton}
                         activeOpacity={0.8}
@@ -426,6 +447,14 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "900",
         color: "#007AFF",
+    },
+    favButton: {
+        width: 60,
+        height: 60,
+        borderRadius: 20,
+        backgroundColor: "rgba(255, 59, 48, 0.1)",
+        justifyContent: "center",
+        alignItems: "center",
     },
     goToBasketButton: {
         width: 60,

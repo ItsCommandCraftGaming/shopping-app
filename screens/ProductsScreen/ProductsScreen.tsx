@@ -15,11 +15,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useCart } from "../../hooks/useCart";
+import { useFavourites } from "../../hooks/useFavourites";
 
 export default function ProductsScreen() {
     const router = useRouter();
     const { products } = useLocalSearchParams<{ products?: string }>();
     const { addToCart } = useCart();
+    const { toggleFavourite, isFavourite } = useFavourites();
 
     // Fetch products based on the selected category slug
     const { data, loading } = useFetch(
@@ -64,20 +66,36 @@ export default function ProductsScreen() {
                         </Text>
                         <View style={styles.priceRow}>
                             <Text style={styles.productPrice}>${item.price}</Text>
-                            <TouchableOpacity
-                                style={styles.addToCartSmallBtn}
-                                onPress={(e) => {
-                                    addToCart({
-                                        id: item.id.toString(),
-                                        name: item.title,
-                                        price: item.price,
-                                        category: item.category || "General",
-                                        image: item.thumbnail
-                                    });
-                                }}
-                            >
-                                <Ionicons name="cart" size={18} color="#FFF" />
-                            </TouchableOpacity>
+                            <View style={styles.actionButtons}>
+                                <TouchableOpacity
+                                    style={styles.favSmallBtn}
+                                    onPress={(e) => {
+                                        toggleFavourite({
+                                            id: item.id.toString(),
+                                            name: item.title,
+                                            price: item.price,
+                                            category: item.category || "General",
+                                            image: item.thumbnail
+                                        });
+                                    }}
+                                >
+                                    <Ionicons name={isFavourite(item.id.toString()) ? "heart" : "heart-outline"} size={20} color={isFavourite(item.id.toString()) ? "#FF3B30" : "#1A1A1A"} />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.addToCartSmallBtn}
+                                    onPress={(e) => {
+                                        addToCart({
+                                            id: item.id.toString(),
+                                            name: item.title,
+                                            price: item.price,
+                                            category: item.category || "General",
+                                            image: item.thumbnail
+                                        });
+                                    }}
+                                >
+                                    <Ionicons name="cart" size={18} color="#FFF" />
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
                 </View>
@@ -240,6 +258,19 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "900",
         color: "#007AFF", // Updated to match the blue theme used in ArticlesScreen
+    },
+    actionButtons: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    favSmallBtn: {
+        width: 32,
+        height: 32,
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: 8,
+        backgroundColor: "rgba(0,0,0,0.05)",
+        borderRadius: 12,
     },
     addToCartSmallBtn: {
         backgroundColor: "#1A1A1A",

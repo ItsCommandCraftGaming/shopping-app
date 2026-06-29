@@ -1,14 +1,17 @@
+import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
     Alert,
     Image,
+    ImageBackground,
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useCart } from "../../hooks/useCart";
 
 export default function BasketScreen() {
@@ -34,14 +37,30 @@ export default function BasketScreen() {
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Coșul Meu</Text>
-                <Text style={styles.headerSubtitle}>
-                    {items.length === 0
-                        ? "Fără produse în coș"
-                        : `${items.length} produse active`}
-                </Text>
+        <ImageBackground
+            source={{
+                uri: "https://www.everwallpaper.co.uk/cdn/shop/products/11dreamy-pink-paint-mural-wallpaper-plain.jpg?v=1739777834",
+            }}
+            resizeMode="cover"
+            style={styles.container}
+        >
+            <View style={styles.headerWrapper}>
+                <BlurView
+                    intensity={40}
+                    tint="light"
+                    style={StyleSheet.absoluteFillObject}
+                    experimentalBlurMethod="dimezisBlurView"
+                />
+                <SafeAreaView edges={["top"]}>
+                    <View style={styles.header}>
+                        <Text style={styles.headerTitle}>Coșul Meu</Text>
+                        <Text style={styles.headerSubtitle}>
+                            {items.length === 0
+                                ? "Fără produse în coș"
+                                : `${items.length} produse active`}
+                        </Text>
+                    </View>
+                </SafeAreaView>
             </View>
 
             {items.length === 0 ? (
@@ -49,7 +68,7 @@ export default function BasketScreen() {
                     <Text style={styles.emptyText}>Coșul tău este gol 🛒</Text>
                 </View>
             ) : (
-                <ScrollView style={styles.listContainer}>
+                <ScrollView contentContainerStyle={styles.listContent}>
                     {items.map((item) => (
                         <View key={item.id} style={styles.cartCard}>
                             {item.image && (
@@ -115,50 +134,70 @@ export default function BasketScreen() {
             )}
 
             {items.length > 0 && (
-                <View style={styles.footer}>
-                    <View style={styles.totalRow}>
-                        <Text style={styles.totalLabel}>Total de plată:</Text>
-                        <Text style={styles.totalValue}>
-                            {calculateTotal()} RON
-                        </Text>
-                    </View>
+                <View style={styles.footerWrapper}>
+                    <BlurView
+                        intensity={80}
+                        tint="light"
+                        style={StyleSheet.absoluteFillObject}
+                    />
+                    <View style={styles.footer}>
+                        <View style={styles.totalRow}>
+                            <Text style={styles.totalLabel}>
+                                Total de plată:
+                            </Text>
+                            <Text style={styles.totalValue}>
+                                {calculateTotal()} RON
+                            </Text>
+                        </View>
 
-                    <TouchableOpacity
-                        style={styles.checkoutBtn}
-                        onPress={handleCheckout}
-                    >
-                        <Text style={styles.checkoutBtnText}>
-                            Finalizează Comanda
-                        </Text>
-                    </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.checkoutBtn}
+                            onPress={handleCheckout}
+                        >
+                            <Text style={styles.checkoutBtnText}>
+                                Finalizează Comanda
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             )}
-        </View>
+        </ImageBackground>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F7F8FA",
-        paddingTop: 60,
+    },
+    headerWrapper: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: "rgba(255, 255, 255, 0.4)",
+        overflow: "hidden",
     },
     header: {
         paddingHorizontal: 20,
-        marginBottom: 15,
+        paddingBottom: 15,
+        paddingTop: 10,
     },
     headerTitle: {
-        fontSize: 28,
-        fontWeight: "bold",
+        fontSize: 32,
+        fontWeight: "900",
         color: "#1A1A1A",
     },
     headerSubtitle: {
-        fontSize: 14,
-        color: "#7E8A97",
+        fontSize: 15,
+        color: "#555",
         marginTop: 4,
+        fontWeight: "500",
     },
-    listContainer: {
-        flex: 1,
+    listContent: {
+        paddingTop: 130, // space for header
+        paddingBottom: 220, // space for footer and tab bar
         paddingHorizontal: 16,
     },
     emptyContainer: {
@@ -167,29 +206,32 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     emptyText: {
-        fontSize: 18,
-        color: "#7E8A97",
+        fontSize: 20,
+        color: "#555",
+        fontWeight: "700",
     },
     cartCard: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 16,
+        backgroundColor: "rgba(255, 255, 255, 1)",
+        borderWidth: 1,
+        borderColor: "rgba(204, 203, 203, 0.8)",
+        borderRadius: 20,
         padding: 16,
         marginBottom: 12,
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 2,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 3,
     },
     cartItemImage: {
         width: 60,
         height: 60,
-        borderRadius: 10,
+        borderRadius: 12,
         marginRight: 12,
-        backgroundColor: "#F2F3F5",
+        backgroundColor: "rgba(255, 255, 255, 0.6)",
     },
     productInfo: {
         flex: 1,
@@ -256,17 +298,25 @@ const styles = StyleSheet.create({
         color: "#FF3B30",
         fontWeight: "600",
     },
-    footer: {
-        backgroundColor: "#FFFFFF",
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-        padding: 24,
-        paddingBottom: 100,
+    footerWrapper: {
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        borderTopWidth: 1,
+        borderTopColor: "rgba(255, 255, 255, 1)",
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        overflow: "hidden",
         shadowColor: "#000",
         shadowOffset: { width: 0, height: -4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
         elevation: 10,
+    },
+    footer: {
+        padding: 24,
+        paddingBottom: 110, // give space for floating tab bar
     },
     totalRow: {
         flexDirection: "row",
@@ -285,10 +335,15 @@ const styles = StyleSheet.create({
         color: "#1A1A1A",
     },
     checkoutBtn: {
-        backgroundColor: "#007AFF",
-        borderRadius: 14,
+        backgroundColor: "#1A1A1A",
+        borderRadius: 18,
         paddingVertical: 16,
         alignItems: "center",
+        shadowColor: "#1A1A1A",
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+        elevation: 6,
     },
     checkoutBtnText: {
         fontSize: 16,
