@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -46,7 +47,7 @@ export default function BasketScreen() {
         >
             <View style={styles.headerWrapper}>
                 <BlurView
-                    intensity={40}
+                    intensity={20}
                     tint="light"
                     style={StyleSheet.absoluteFillObject}
                     experimentalBlurMethod="dimezisBlurView"
@@ -65,7 +66,24 @@ export default function BasketScreen() {
 
             {items.length === 0 ? (
                 <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>Coșul tău este gol 🛒</Text>
+                    <View style={styles.emptyCardWrapper}>
+                        <BlurView
+                            intensity={20}
+                            tint="light"
+                            style={StyleSheet.absoluteFillObject}
+                            experimentalBlurMethod="dimezisBlurView"
+                        />
+                        <Ionicons
+                            name="cart-outline"
+                            size={64}
+                            color="#1A1A1A"
+                            style={{ marginBottom: 16 }}
+                        />
+                        <Text style={styles.emptyText}>Coșul tău este gol</Text>
+                        <Text style={styles.emptySubtext}>
+                            Adaugă produse pentru a continua!
+                        </Text>
+                    </View>
                 </View>
             ) : (
                 <ScrollView contentContainerStyle={styles.listContent}>
@@ -204,11 +222,30 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+        padding: 20,
+    },
+    emptyCardWrapper: {
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 40,
+        borderRadius: 30,
+        overflow: "hidden",
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.6)",
+        backgroundColor: "rgba(255, 255, 255, 0.2)",
     },
     emptyText: {
         fontSize: 20,
-        color: "#555",
-        fontWeight: "700",
+        color: "#1A1A1A",
+        fontWeight: "800",
+        textAlign: "center",
+        marginBottom: 8,
+    },
+    emptySubtext: {
+        fontSize: 15,
+        color: "#1A1A1A",
+        fontWeight: "500",
+        textAlign: "center",
     },
     cartCard: {
         backgroundColor: "rgba(255, 255, 255, 1)",
