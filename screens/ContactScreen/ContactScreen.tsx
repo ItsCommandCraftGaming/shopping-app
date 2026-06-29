@@ -1,12 +1,20 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
 import { useRouter } from "expo-router";
+import React, { useState } from "react";
+import {
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { useCart } from "../../hooks/useCart";
 
 export default function ContactScreen() {
     const router = useRouter();
     const { contactDetails, saveContactDetails } = useCart();
-    
+
     const [fullName, setFullName] = useState(contactDetails?.fullName || "");
     const [email, setEmail] = useState(contactDetails?.email || "");
     const [phone, setPhone] = useState(contactDetails?.phone || "");
@@ -18,13 +26,13 @@ export default function ContactScreen() {
             return;
         }
         saveContactDetails({ fullName, email, phone, address });
-        router.push("/basket/contact/checkout");
+        router.push("../basket/contact/checkout");
     };
 
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.title}>Detalii Livrare</Text>
-            
+
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>Nume complet</Text>
                 <TextInput
@@ -70,7 +78,10 @@ export default function ContactScreen() {
                 />
             </View>
 
-            <TouchableOpacity style={styles.continueBtn} onPress={handleContinue}>
+            <TouchableOpacity
+                style={styles.continueBtn}
+                onPress={handleContinue}
+            >
                 <Text style={styles.continueBtnText}>Continuă spre plată</Text>
             </TouchableOpacity>
         </ScrollView>

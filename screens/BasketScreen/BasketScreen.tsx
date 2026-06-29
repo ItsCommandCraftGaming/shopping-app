@@ -1,19 +1,26 @@
+import { useRouter } from "expo-router";
 import React from "react";
 import {
     Alert,
+    Image,
     ScrollView,
     StyleSheet,
+    Text,
     TouchableOpacity,
     View,
-    Image,
-    Text,
 } from "react-native";
-import { useRouter } from "expo-router";
 import { useCart } from "../../hooks/useCart";
 
 export default function BasketScreen() {
     const router = useRouter();
-    const { items, increaseQuantity, decreaseQuantity, removeItem, calculateTotal, clearCart } = useCart();
+    const {
+        items,
+        increaseQuantity,
+        decreaseQuantity,
+        removeItem,
+        calculateTotal,
+        clearCart,
+    } = useCart();
 
     const handleCheckout = () => {
         if (items.length === 0) {
@@ -23,7 +30,7 @@ export default function BasketScreen() {
             );
             return;
         }
-        router.push("/basket/contact");
+        router.push("../basket/contact");
     };
 
     return (
@@ -46,7 +53,11 @@ export default function BasketScreen() {
                     {items.map((item) => (
                         <View key={item.id} style={styles.cartCard}>
                             {item.image && (
-                                <Image source={{ uri: item.image }} style={styles.cartItemImage} resizeMode="contain" />
+                                <Image
+                                    source={{ uri: item.image }}
+                                    style={styles.cartItemImage}
+                                    resizeMode="contain"
+                                />
                             )}
                             <View style={styles.productInfo}>
                                 <Text style={styles.productName}>
