@@ -36,7 +36,7 @@ export default function BasketScreen() {
             });
             return;
         }
-        router.push("../basket/contact");
+        router.navigate("../basket/contact");
     };
 
     return (

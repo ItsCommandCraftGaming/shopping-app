@@ -343,7 +343,7 @@ export default function ArticlesScreen() {
                     <TouchableOpacity
                         style={styles.goToBasketButton}
                         activeOpacity={0.8}
-                        onPress={() => router.push("/basket")}
+                        onPress={() => router.navigate("/basket")}
                     >
                         <Ionicons
                             name="basket-outline"

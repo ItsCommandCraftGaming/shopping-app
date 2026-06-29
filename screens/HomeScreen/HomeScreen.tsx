@@ -1,7 +1,8 @@
 import useFetch from "@/hooks/useFetch";
+import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
     FlatList,
     ImageBackground,
@@ -16,13 +17,33 @@ export default function HomeScreen() {
     const { data } = useFetch("https://dummyjson.com/products/categories");
 
     const router = useRouter();
+    const [isGridView, setIsGridView] = useState(true);
 
     const renderItem = ({ item }: { item: any }) => {
+        if (!isGridView) {
+            return (
+                <TouchableOpacity
+                    style={styles.listItem}
+                    onPress={() => {
+                        router.navigate({
+                            pathname: "/home/[products]",
+                            params: { products: item.slug },
+                        });
+                    }}
+                >
+                    <View style={styles.glassContainerList}>
+                        <Text style={styles.itemTextList}>{item.name}</Text>
+                        <Ionicons name="chevron-forward" size={20} color="#888" />
+                    </View>
+                </TouchableOpacity>
+            );
+        }
+
         return (
             <TouchableOpacity
                 style={styles.item}
                 onPress={() => {
-                    router.push({
+                    router.navigate({
                         pathname: "/home/[products]",
                         params: { products: item.slug },
                     });
@@ -47,8 +68,9 @@ export default function HomeScreen() {
             <FlatList
                 data={data}
                 renderItem={renderItem}
+                key={isGridView ? "grid" : "list"}
                 keyExtractor={(item) => item.slug}
-                numColumns={2}
+                numColumns={isGridView ? 2 : 1}
                 contentContainerStyle={styles.listContent}
             />
 
@@ -60,7 +82,16 @@ export default function HomeScreen() {
                     experimentalBlurMethod="dimezisBlurView"
                 />
                 <SafeAreaView edges={["top"]} style={styles.headerSafeArea}>
-                    <Text style={styles.title}>Categorii</Text>
+                    <View style={styles.headerRow}>
+                        <Text style={styles.title}>Categorii</Text>
+                        <TouchableOpacity
+                            onPress={() => setIsGridView(!isGridView)}
+                            style={styles.viewToggleBtn}
+                            activeOpacity={0.7}
+                        >
+                            <Ionicons name={isGridView ? "list" : "grid"} size={22} color="#000" />
+                        </TouchableOpacity>
+                    </View>
                 </SafeAreaView>
             </View>
         </ImageBackground>
@@ -83,12 +114,22 @@ const styles = StyleSheet.create({
     headerSafeArea: {
         paddingBottom: 20,
     },
+    headerRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingHorizontal: 16,
+        marginTop: 10,
+    },
     title: {
         fontSize: 28,
         fontWeight: "bold",
         color: "#000000",
-        marginHorizontal: 16,
-        marginTop: 10,
+    },
+    viewToggleBtn: {
+        backgroundColor: "rgba(255, 255, 255, 0.5)",
+        borderRadius: 20,
+        padding: 8,
     },
     listContent: {
         paddingTop: 110, // Gives space for the absolute header
@@ -121,6 +162,33 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         color: "#2C3E50",
         textAlign: "center",
+        textTransform: "capitalize",
+    },
+    listItem: {
+        width: "100%",
+        marginBottom: 12,
+        paddingHorizontal: 8,
+    },
+    glassContainerList: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingVertical: 18,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+        backgroundColor: "rgba(255, 255, 255, 1)", 
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.8)",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.12,
+        shadowRadius: 10,
+        elevation: 3,
+    },
+    itemTextList: {
+        fontSize: 18,
+        fontWeight: "700",
+        color: "#2C3E50",
         textTransform: "capitalize",
     },
 });

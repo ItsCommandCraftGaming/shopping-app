@@ -25,6 +25,7 @@ export default function ProductsScreen() {
     const { toggleFavourite, isFavourite } = useFavourites();
 
     const [searchQuery, setSearchQuery] = useState("");
+    const [isGridView, setIsGridView] = useState(true);
 
     // Fetch products based on the selected category slug
     const { data, loading } = useFetch(
@@ -34,20 +35,197 @@ export default function ProductsScreen() {
     );
 
     const productsList = (data as any)?.products || [];
-    
-    const displayedProducts = searchQuery.trim().length >= 3 
-        ? productsList.filter((p: any) => p.title.toLowerCase().includes(searchQuery.trim().toLowerCase()))
-        : productsList;
+
+    const displayedProducts =
+        searchQuery.trim().length >= 3
+            ? productsList.filter((p: any) =>
+                  p.title
+                      .toLowerCase()
+                      .includes(searchQuery.trim().toLowerCase()),
+              )
+            : productsList;
 
     const renderItem = ({ item }: { item: any }) => {
+        if (!isGridView) {
+            return (
+                <TouchableOpacity
+                    style={styles.listItem}
+                    activeOpacity={0.8}
+                    onPress={() => {
+                        router.navigate({
+                            pathname: "/home/[products]/[articles]",
+                            params: {
+                                products: products || "all",
+                                articles: item.id.toString(),
+                            },
+                        });
+                    }}
+                >
+                    <View style={styles.glassContainerList}>
+                        {item.thumbnail ? (
+                            <View style={{ position: "relative" }}>
+                                <Image
+                                    source={{ uri: item.thumbnail }}
+                                    style={styles.productImageList}
+                                    resizeMode="contain"
+                                />
+                                {item.discountPercentage > 0 && (
+                                    <View
+                                        style={[
+                                            styles.absoluteDiscount,
+                                            { top: 5, left: 5 },
+                                        ]}
+                                    >
+                                        <Text
+                                            style={styles.absoluteDiscountText}
+                                        >
+                                            -{item.discountPercentage}%
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
+                        ) : (
+                            <View style={styles.placeholderImageList}>
+                                <Ionicons
+                                    name="image-outline"
+                                    size={30}
+                                    color="#888"
+                                />
+                            </View>
+                        )}
+                        <View style={styles.infoContainerList}>
+                            <Text
+                                style={styles.productTitleList}
+                                numberOfLines={2}
+                            >
+                                {item.title}
+                            </Text>
+
+                            <View style={styles.metaRowList}>
+                                <View style={styles.ratingBadge}>
+                                    <Ionicons
+                                        name="star"
+                                        size={10}
+                                        color="#FFD700"
+                                    />
+                                    <Text style={styles.ratingText}>
+                                        {item.rating}
+                                    </Text>
+                                </View>
+                                <Text
+                                    style={[
+                                        styles.stockText,
+                                        item.availabilityStatus === "Low Stock"
+                                            ? { color: "#FF9500" }
+                                            : item.availabilityStatus ===
+                                                "Out of Stock"
+                                              ? { color: "#FF3B30" }
+                                              : {},
+                                    ]}
+                                >
+                                    {item.availabilityStatus || "In Stock"}
+                                </Text>
+                            </View>
+
+                            <View style={styles.priceRowList}>
+                                <View
+                                    style={{
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        gap: 6,
+                                    }}
+                                >
+                                    <Text style={styles.productPriceList}>
+                                        ${item.price}
+                                    </Text>
+                                    {item.discountPercentage > 0 && (
+                                        <Text style={styles.oldPriceSmallList}>
+                                            $
+                                            {(
+                                                item.price /
+                                                (1 -
+                                                    item.discountPercentage /
+                                                        100)
+                                            ).toFixed(2)}
+                                        </Text>
+                                    )}
+                                </View>
+                                <View style={styles.actionButtons}>
+                                    <TouchableOpacity
+                                        style={styles.favSmallBtn}
+                                        onPress={(e) => {
+                                            toggleFavourite({
+                                                id: item.id.toString(),
+                                                name: item.title,
+                                                price: item.price,
+                                                category:
+                                                    item.category || "General",
+                                                image: item.thumbnail,
+                                            });
+                                        }}
+                                    >
+                                        <Ionicons
+                                            name={
+                                                isFavourite(item.id.toString())
+                                                    ? "heart"
+                                                    : "heart-outline"
+                                            }
+                                            size={20}
+                                            color={
+                                                isFavourite(item.id.toString())
+                                                    ? "#FF3B30"
+                                                    : "#1A1A1A"
+                                            }
+                                        />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.addToCartSmallBtn,
+                                            item.availabilityStatus ===
+                                            "Out of Stock"
+                                                ? { backgroundColor: "#D1D1D6" }
+                                                : {},
+                                        ]}
+                                        disabled={
+                                            item.availabilityStatus ===
+                                            "Out of Stock"
+                                        }
+                                        onPress={(e) => {
+                                            addToCart({
+                                                id: item.id.toString(),
+                                                name: item.title,
+                                                price: item.price,
+                                                category:
+                                                    item.category || "General",
+                                                image: item.thumbnail,
+                                            });
+                                        }}
+                                    >
+                                        <Ionicons
+                                            name="cart"
+                                            size={18}
+                                            color="#FFF"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </View>
+                </TouchableOpacity>
+            );
+        }
+
         return (
             <TouchableOpacity
                 style={styles.item}
                 activeOpacity={0.8}
                 onPress={() => {
-                    router.push({
+                    router.navigate({
                         pathname: "/home/[products]/[articles]",
-                        params: { products: products || "all", articles: item.id.toString() },
+                        params: {
+                            products: products || "all",
+                            articles: item.id.toString(),
+                        },
                     });
                 }}
             >
@@ -61,7 +239,9 @@ export default function ProductsScreen() {
                             />
                             {item.discountPercentage > 0 && (
                                 <View style={styles.absoluteDiscount}>
-                                    <Text style={styles.absoluteDiscountText}>-{item.discountPercentage}%</Text>
+                                    <Text style={styles.absoluteDiscountText}>
+                                        -{item.discountPercentage}%
+                                    </Text>
                                 </View>
                             )}
                         </View>
@@ -78,28 +258,45 @@ export default function ProductsScreen() {
                         <Text style={styles.productTitle} numberOfLines={1}>
                             {item.title}
                         </Text>
-                        
+
                         <View style={styles.metaRow}>
                             <View style={styles.ratingBadge}>
-                                <Ionicons name="star" size={10} color="#FFD700" />
-                                <Text style={styles.ratingText}>{item.rating}</Text>
+                                <Ionicons
+                                    name="star"
+                                    size={10}
+                                    color="#FFD700"
+                                />
+                                <Text style={styles.ratingText}>
+                                    {item.rating}
+                                </Text>
                             </View>
-                            <Text style={[
-                                styles.stockText, 
-                                item.availabilityStatus === "Low Stock" ? { color: "#FF9500" } : 
-                                item.availabilityStatus === "Out of Stock" ? { color: "#FF3B30" } : 
-                                {}
-                            ]}>
+                            <Text
+                                style={[
+                                    styles.stockText,
+                                    item.availabilityStatus === "Low Stock"
+                                        ? { color: "#FF9500" }
+                                        : item.availabilityStatus ===
+                                            "Out of Stock"
+                                          ? { color: "#FF3B30" }
+                                          : {},
+                                ]}
+                            >
                                 {item.availabilityStatus || "In Stock"}
                             </Text>
                         </View>
 
                         <View style={styles.priceRow}>
                             <View>
-                                <Text style={styles.productPrice}>${item.price}</Text>
+                                <Text style={styles.productPrice}>
+                                    ${item.price}
+                                </Text>
                                 {item.discountPercentage > 0 && (
                                     <Text style={styles.oldPriceSmall}>
-                                        ${(item.price / (1 - item.discountPercentage / 100)).toFixed(2)}
+                                        $
+                                        {(
+                                            item.price /
+                                            (1 - item.discountPercentage / 100)
+                                        ).toFixed(2)}
                                     </Text>
                                 )}
                             </View>
@@ -111,27 +308,54 @@ export default function ProductsScreen() {
                                             id: item.id.toString(),
                                             name: item.title,
                                             price: item.price,
-                                            category: item.category || "General",
-                                            image: item.thumbnail
+                                            category:
+                                                item.category || "General",
+                                            image: item.thumbnail,
                                         });
                                     }}
                                 >
-                                    <Ionicons name={isFavourite(item.id.toString()) ? "heart" : "heart-outline"} size={20} color={isFavourite(item.id.toString()) ? "#FF3B30" : "#1A1A1A"} />
+                                    <Ionicons
+                                        name={
+                                            isFavourite(item.id.toString())
+                                                ? "heart"
+                                                : "heart-outline"
+                                        }
+                                        size={20}
+                                        color={
+                                            isFavourite(item.id.toString())
+                                                ? "#FF3B30"
+                                                : "#1A1A1A"
+                                        }
+                                    />
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    style={[styles.addToCartSmallBtn, item.availabilityStatus === "Out of Stock" ? { backgroundColor: "#D1D1D6" } : {}]}
-                                    disabled={item.availabilityStatus === "Out of Stock"}
+                                    style={[
+                                        styles.addToCartSmallBtn,
+                                        item.availabilityStatus ===
+                                        "Out of Stock"
+                                            ? { backgroundColor: "#D1D1D6" }
+                                            : {},
+                                    ]}
+                                    disabled={
+                                        item.availabilityStatus ===
+                                        "Out of Stock"
+                                    }
                                     onPress={(e) => {
                                         addToCart({
                                             id: item.id.toString(),
                                             name: item.title,
                                             price: item.price,
-                                            category: item.category || "General",
-                                            image: item.thumbnail
+                                            category:
+                                                item.category || "General",
+                                            image: item.thumbnail,
                                         });
                                     }}
                                 >
-                                    <Ionicons name="cart" size={18} color="#FFF" />
+                                    <Ionicons
+                                        name="cart"
+                                        size={18}
+                                        color="#FFF"
+                                    />
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -157,10 +381,11 @@ export default function ProductsScreen() {
                 <FlatList
                     data={displayedProducts}
                     renderItem={renderItem}
+                    key={isGridView ? "grid" : "list"}
                     keyExtractor={(item, index) =>
                         item?.id?.toString() || index.toString()
                     }
-                    numColumns={2}
+                    numColumns={isGridView ? 2 : 1}
                     contentContainerStyle={styles.listContent}
                     initialNumToRender={10}
                     maxToRenderPerBatch={10}
@@ -192,6 +417,18 @@ export default function ProductsScreen() {
                         <Text style={styles.title} numberOfLines={1}>
                             {products || "Products"}
                         </Text>
+
+                        <TouchableOpacity
+                            onPress={() => setIsGridView(!isGridView)}
+                            style={styles.viewToggleBtn}
+                            activeOpacity={0.7}
+                        >
+                            <Ionicons
+                                name={isGridView ? "list" : "grid"}
+                                size={22}
+                                color="#000"
+                            />
+                        </TouchableOpacity>
                     </View>
 
                     <View style={styles.searchContainer}>
@@ -206,8 +443,14 @@ export default function ProductsScreen() {
                             autoCorrect={false}
                         />
                         {searchQuery.length > 0 && (
-                            <TouchableOpacity onPress={() => setSearchQuery("")}>
-                                <Ionicons name="close-circle" size={20} color="#888" />
+                            <TouchableOpacity
+                                onPress={() => setSearchQuery("")}
+                            >
+                                <Ionicons
+                                    name="close-circle"
+                                    size={20}
+                                    color="#888"
+                                />
                             </TouchableOpacity>
                         )}
                     </View>
@@ -244,6 +487,12 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         padding: 8,
         marginRight: 12,
+    },
+    viewToggleBtn: {
+        backgroundColor: "rgba(255, 255, 255, 0.5)",
+        borderRadius: 20,
+        padding: 8,
+        marginLeft: 12,
     },
     title: {
         fontSize: 24,
@@ -331,7 +580,7 @@ const styles = StyleSheet.create({
     productPrice: {
         fontSize: 16,
         fontWeight: "900",
-        color: "#007AFF", 
+        color: "#007AFF",
     },
     oldPriceSmall: {
         fontSize: 12,
@@ -400,5 +649,67 @@ const styles = StyleSheet.create({
         height: 32,
         justifyContent: "center",
         alignItems: "center",
+    },
+    listItem: {
+        width: "100%",
+        marginBottom: 12,
+        paddingHorizontal: 8,
+    },
+    glassContainerList: {
+        flexDirection: "row",
+        borderRadius: 20,
+        overflow: "hidden",
+        backgroundColor: "rgba(255, 255, 255, 1)",
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.8)",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.12,
+        shadowRadius: 10,
+        elevation: 3,
+    },
+    productImageList: {
+        width: 120,
+        height: 120,
+        backgroundColor: "rgba(255, 255, 255, 0.5)",
+    },
+    placeholderImageList: {
+        width: 120,
+        height: 120,
+        backgroundColor: "rgba(255, 255, 255, 1)",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    infoContainerList: {
+        flex: 1,
+        padding: 12,
+        justifyContent: "space-between",
+    },
+    productTitleList: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: "#1e1e1e",
+        marginBottom: 4,
+    },
+    metaRowList: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
+        marginBottom: 8,
+    },
+    priceRowList: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "flex-end",
+    },
+    productPriceList: {
+        fontSize: 18,
+        fontWeight: "900",
+        color: "#007AFF",
+    },
+    oldPriceSmallList: {
+        fontSize: 14,
+        color: "#8E8E93",
+        textDecorationLine: "line-through",
     },
 });

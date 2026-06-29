@@ -51,7 +51,7 @@ export default function SearchScreen() {
                 activeOpacity={0.8}
                 onPress={() => {
                     // Navigate to the article screen via home tab stack to maintain navigation history
-                    router.push({
+                    router.navigate({
                         pathname: "/home/[products]/[articles]",
                         params: {
                             products: item.category || "all",

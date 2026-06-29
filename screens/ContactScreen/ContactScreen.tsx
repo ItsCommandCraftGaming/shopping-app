@@ -36,7 +36,7 @@ export default function ContactScreen() {
             return;
         }
         saveContactDetails({ fullName, email, phone, address });
-        router.push("../basket/contact/checkout");
+        router.navigate("../basket/contact/checkout");
     };
 
     return (
