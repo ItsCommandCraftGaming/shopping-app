@@ -13,14 +13,16 @@ import { useFavourites } from "../../hooks/useFavourites";
 
 function TabBarBackground() {
   const pathname = usePathname();
-  const isBasket = pathname.includes("basket");
+  const isSearch = pathname.includes("search");
   const isFav = pathname.includes("favourites");
+  const isBasket = pathname.includes("basket");
 
-  // Animate the position of the glow container (33.33% width)
+  // Animate the position of the glow container (25% width)
   const sliderStyle = useAnimatedStyle(() => {
     let left = "0%";
-    if (isFav) left = "33.33%";
-    if (isBasket) left = "66.66%";
+    if (isSearch) left = "25%";
+    if (isFav) left = "50%";
+    if (isBasket) left = "75%";
     return {
       left: withTiming(left, {
         duration: 400,
@@ -31,7 +33,11 @@ function TabBarBackground() {
 
   // Cross-fade the colors inside the slider
   const homeOpacity = useAnimatedStyle(() => ({
-    opacity: withTiming(!isFav && !isBasket ? 1 : 0, { duration: 400 }),
+    opacity: withTiming(!isSearch && !isFav && !isBasket ? 1 : 0, { duration: 400 }),
+  }));
+
+  const searchOpacity = useAnimatedStyle(() => ({
+    opacity: withTiming(isSearch ? 1 : 0, { duration: 400 }),
   }));
 
   const favOpacity = useAnimatedStyle(() => ({
@@ -55,7 +61,7 @@ function TabBarBackground() {
       >
         <Animated.View
           style={[
-            { position: "absolute", top: 0, bottom: 0, width: "33.33%" },
+            { position: "absolute", top: 0, bottom: 0, width: "25%" },
             sliderStyle,
           ]}
         >
@@ -64,6 +70,19 @@ function TabBarBackground() {
               colors={[
                 "rgba(255, 255, 255, 0)",
                 "rgba(100, 150, 255, 0.2)",
+                "rgba(255, 255, 255, 0)",
+              ]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={StyleSheet.absoluteFillObject}
+            />
+          </Animated.View>
+
+          <Animated.View style={[StyleSheet.absoluteFillObject, searchOpacity]}>
+            <LinearGradient
+              colors={[
+                "rgba(255, 255, 255, 0)",
+                "rgba(150, 100, 255, 0.2)",
                 "rgba(255, 255, 255, 0)",
               ]}
               start={{ x: 0, y: 0 }}
@@ -148,6 +167,19 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "home" : "home-outline"}
+              size={26}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="search"
+        options={{
+          title: "Caută",
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "search" : "search-outline"}
               size={26}
               color={color}
             />

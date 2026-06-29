@@ -1,8 +1,8 @@
 import useFetch from "@/hooks/useFetch";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
     ActivityIndicator,
     FlatList,
@@ -18,26 +18,31 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useCart } from "../../hooks/useCart";
 import { useFavourites } from "../../hooks/useFavourites";
 
-export default function ProductsScreen() {
+export default function SearchScreen() {
     const router = useRouter();
-    const { products } = useLocalSearchParams<{ products?: string }>();
+    const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedQuery, setDebouncedQuery] = useState("");
     const { addToCart } = useCart();
     const { toggleFavourite, isFavourite } = useFavourites();
 
-    const [searchQuery, setSearchQuery] = useState("");
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (searchQuery.trim().length >= 3) {
+                setDebouncedQuery(searchQuery.trim());
+            } else {
+                setDebouncedQuery("");
+            }
+        }, 500);
+        return () => clearTimeout(handler);
+    }, [searchQuery]);
 
-    // Fetch products based on the selected category slug
     const { data, loading } = useFetch(
-        products
-            ? `https://dummyjson.com/products/category/${products}`
-            : "https://dummyjson.com/products",
+        debouncedQuery.length >= 3
+            ? `https://dummyjson.com/products/search?q=${encodeURIComponent(debouncedQuery)}`
+            : "",
     );
 
     const productsList = (data as any)?.products || [];
-    
-    const displayedProducts = searchQuery.trim().length >= 3 
-        ? productsList.filter((p: any) => p.title.toLowerCase().includes(searchQuery.trim().toLowerCase()))
-        : productsList;
 
     const renderItem = ({ item }: { item: any }) => {
         return (
@@ -45,9 +50,13 @@ export default function ProductsScreen() {
                 style={styles.item}
                 activeOpacity={0.8}
                 onPress={() => {
+                    // Navigate to the article screen via home tab stack to maintain navigation history
                     router.push({
                         pathname: "/home/[products]/[articles]",
-                        params: { products: products || "all", articles: item.id.toString() },
+                        params: {
+                            products: item.category || "all",
+                            articles: item.id.toString(),
+                        },
                     });
                 }}
             >
@@ -61,7 +70,9 @@ export default function ProductsScreen() {
                             />
                             {item.discountPercentage > 0 && (
                                 <View style={styles.absoluteDiscount}>
-                                    <Text style={styles.absoluteDiscountText}>-{item.discountPercentage}%</Text>
+                                    <Text style={styles.absoluteDiscountText}>
+                                        -{item.discountPercentage}%
+                                    </Text>
                                 </View>
                             )}
                         </View>
@@ -78,28 +89,45 @@ export default function ProductsScreen() {
                         <Text style={styles.productTitle} numberOfLines={1}>
                             {item.title}
                         </Text>
-                        
+
                         <View style={styles.metaRow}>
                             <View style={styles.ratingBadge}>
-                                <Ionicons name="star" size={10} color="#FFD700" />
-                                <Text style={styles.ratingText}>{item.rating}</Text>
+                                <Ionicons
+                                    name="star"
+                                    size={10}
+                                    color="#FFD700"
+                                />
+                                <Text style={styles.ratingText}>
+                                    {item.rating}
+                                </Text>
                             </View>
-                            <Text style={[
-                                styles.stockText, 
-                                item.availabilityStatus === "Low Stock" ? { color: "#FF9500" } : 
-                                item.availabilityStatus === "Out of Stock" ? { color: "#FF3B30" } : 
-                                {}
-                            ]}>
+                            <Text
+                                style={[
+                                    styles.stockText,
+                                    item.availabilityStatus === "Low Stock"
+                                        ? { color: "#FF9500" }
+                                        : item.availabilityStatus ===
+                                            "Out of Stock"
+                                          ? { color: "#FF3B30" }
+                                          : {},
+                                ]}
+                            >
                                 {item.availabilityStatus || "In Stock"}
                             </Text>
                         </View>
 
                         <View style={styles.priceRow}>
                             <View>
-                                <Text style={styles.productPrice}>${item.price}</Text>
+                                <Text style={styles.productPrice}>
+                                    ${item.price}
+                                </Text>
                                 {item.discountPercentage > 0 && (
                                     <Text style={styles.oldPriceSmall}>
-                                        ${(item.price / (1 - item.discountPercentage / 100)).toFixed(2)}
+                                        $
+                                        {(
+                                            item.price /
+                                            (1 - item.discountPercentage / 100)
+                                        ).toFixed(2)}
                                     </Text>
                                 )}
                             </View>
@@ -111,27 +139,54 @@ export default function ProductsScreen() {
                                             id: item.id.toString(),
                                             name: item.title,
                                             price: item.price,
-                                            category: item.category || "General",
-                                            image: item.thumbnail
+                                            category:
+                                                item.category || "General",
+                                            image: item.thumbnail,
                                         });
                                     }}
                                 >
-                                    <Ionicons name={isFavourite(item.id.toString()) ? "heart" : "heart-outline"} size={20} color={isFavourite(item.id.toString()) ? "#FF3B30" : "#1A1A1A"} />
+                                    <Ionicons
+                                        name={
+                                            isFavourite(item.id.toString())
+                                                ? "heart"
+                                                : "heart-outline"
+                                        }
+                                        size={20}
+                                        color={
+                                            isFavourite(item.id.toString())
+                                                ? "#FF3B30"
+                                                : "#1A1A1A"
+                                        }
+                                    />
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    style={[styles.addToCartSmallBtn, item.availabilityStatus === "Out of Stock" ? { backgroundColor: "#D1D1D6" } : {}]}
-                                    disabled={item.availabilityStatus === "Out of Stock"}
+                                    style={[
+                                        styles.addToCartSmallBtn,
+                                        item.availabilityStatus ===
+                                        "Out of Stock"
+                                            ? { backgroundColor: "#D1D1D6" }
+                                            : {},
+                                    ]}
+                                    disabled={
+                                        item.availabilityStatus ===
+                                        "Out of Stock"
+                                    }
                                     onPress={(e) => {
                                         addToCart({
                                             id: item.id.toString(),
                                             name: item.title,
                                             price: item.price,
-                                            category: item.category || "General",
-                                            image: item.thumbnail
+                                            category:
+                                                item.category || "General",
+                                            image: item.thumbnail,
                                         });
                                     }}
                                 >
-                                    <Ionicons name="cart" size={18} color="#FFF" />
+                                    <Ionicons
+                                        name="cart"
+                                        size={18}
+                                        color="#FFF"
+                                    />
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -149,13 +204,34 @@ export default function ProductsScreen() {
             resizeMode="cover"
             style={styles.container}
         >
-            {loading ? (
+            {debouncedQuery.length < 3 ? (
+                <View style={styles.emptyContainer}>
+                    <BlurView
+                        intensity={30}
+                        tint="light"
+                        style={styles.emptyCard}
+                        experimentalBlurMethod="dimezisBlurView"
+                    >
+                        <Ionicons
+                            name="search"
+                            size={60}
+                            color="#1A1A1A"
+                            style={{ marginBottom: 16 }}
+                        />
+                        <Text style={styles.emptyTitle}>Căutare Globală</Text>
+                        <Text style={styles.emptySubtitle}>
+                            Introdu minim 3 litere pentru a căuta prin absolut
+                            toate produsele din magazin.
+                        </Text>
+                    </BlurView>
+                </View>
+            ) : loading ? (
                 <View style={styles.loaderContainer}>
                     <ActivityIndicator size="large" color="#ffffff" />
                 </View>
             ) : (
                 <FlatList
-                    data={displayedProducts}
+                    data={productsList}
                     renderItem={renderItem}
                     keyExtractor={(item, index) =>
                         item?.id?.toString() || index.toString()
@@ -164,6 +240,30 @@ export default function ProductsScreen() {
                     contentContainerStyle={styles.listContent}
                     initialNumToRender={10}
                     maxToRenderPerBatch={10}
+                    ListEmptyComponent={
+                        <View style={styles.emptyContainer}>
+                            <BlurView
+                                intensity={30}
+                                tint="light"
+                                style={styles.emptyCard}
+                                experimentalBlurMethod="dimezisBlurView"
+                            >
+                                <Ionicons
+                                    name="alert-circle-outline"
+                                    size={60}
+                                    color="#1A1A1A"
+                                    style={{ marginBottom: 16 }}
+                                />
+                                <Text style={styles.emptyTitle}>
+                                    Niciun rezultat
+                                </Text>
+                                <Text style={styles.emptySubtitle}>
+                                    Nu am găsit niciun produs care să conțină "
+                                    {debouncedQuery}".
+                                </Text>
+                            </BlurView>
+                        </View>
+                    }
                 />
             )}
 
@@ -177,20 +277,8 @@ export default function ProductsScreen() {
                 />
                 <SafeAreaView edges={["top"]} style={styles.headerSafeArea}>
                     <View style={styles.headerRow}>
-                        <TouchableOpacity
-                            onPress={() => router.back()}
-                            style={styles.backButton}
-                            activeOpacity={0.7}
-                        >
-                            <Ionicons
-                                name="arrow-back"
-                                size={24}
-                                color="#000"
-                            />
-                        </TouchableOpacity>
-
                         <Text style={styles.title} numberOfLines={1}>
-                            {products || "Products"}
+                            Căutare Globală
                         </Text>
                     </View>
 
@@ -198,7 +286,7 @@ export default function ProductsScreen() {
                         <Ionicons name="search" size={20} color="#888" />
                         <TextInput
                             style={styles.searchInput}
-                            placeholder="Caută produse..."
+                            placeholder="Caută în tot magazinul..."
                             value={searchQuery}
                             onChangeText={setSearchQuery}
                             placeholderTextColor="#888"
@@ -206,8 +294,14 @@ export default function ProductsScreen() {
                             autoCorrect={false}
                         />
                         {searchQuery.length > 0 && (
-                            <TouchableOpacity onPress={() => setSearchQuery("")}>
-                                <Ionicons name="close-circle" size={20} color="#888" />
+                            <TouchableOpacity
+                                onPress={() => setSearchQuery("")}
+                            >
+                                <Ionicons
+                                    name="close-circle"
+                                    size={20}
+                                    color="#888"
+                                />
                             </TouchableOpacity>
                         )}
                     </View>
@@ -239,28 +333,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         marginTop: 10,
     },
-    backButton: {
-        backgroundColor: "rgba(255, 255, 255, 0.5)",
-        borderRadius: 20,
-        padding: 8,
-        marginRight: 12,
-    },
     title: {
         fontSize: 24,
         fontWeight: "bold",
         color: "#000000",
-        textTransform: "capitalize",
         flex: 1,
-    },
-    loaderContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    listContent: {
-        paddingTop: 170, // Gives space for the absolute header + search bar
-        paddingBottom: 120, // Enough space to clear bottom tab bar & safe area
-        paddingHorizontal: 8,
     },
     searchContainer: {
         flexDirection: "row",
@@ -280,6 +357,44 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "#1A1A1A",
     },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: 20,
+    },
+    emptyCard: {
+        padding: 30,
+        borderRadius: 25,
+        alignItems: "center",
+        backgroundColor: "rgba(255, 255, 255, 0.5)",
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.8)",
+        overflow: "hidden",
+    },
+    emptyTitle: {
+        fontSize: 22,
+        fontWeight: "bold",
+        color: "#1A1A1A",
+        marginBottom: 10,
+    },
+    emptySubtitle: {
+        fontSize: 15,
+        color: "#555",
+        textAlign: "center",
+        lineHeight: 22,
+    },
+    listContent: {
+        paddingTop: 160,
+        paddingBottom: 120,
+        paddingHorizontal: 8,
+        minHeight: "100%",
+    },
     item: {
         flex: 1,
         margin: 8,
@@ -293,7 +408,7 @@ const styles = StyleSheet.create({
     glassContainer: {
         borderRadius: 20,
         overflow: "hidden",
-        backgroundColor: "rgba(255, 255, 255, 1)", // More opaque since it doesn't have blur
+        backgroundColor: "rgba(255, 255, 255, 1)",
         borderWidth: 1,
         borderColor: "rgba(255, 255, 255, 0.8)",
     },
@@ -331,7 +446,7 @@ const styles = StyleSheet.create({
     productPrice: {
         fontSize: 16,
         fontWeight: "900",
-        color: "#007AFF", 
+        color: "#007AFF",
     },
     oldPriceSmall: {
         fontSize: 12,
