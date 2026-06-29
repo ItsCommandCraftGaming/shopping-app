@@ -130,8 +130,24 @@ export default function ArticlesScreen() {
 
                 <View style={styles.detailsContainer}>
                     <View style={styles.titleRow}>
-                        <Text style={styles.title}>{prod.title}</Text>
-                        <Text style={styles.price}>${prod.price}</Text>
+                        <View style={{ flex: 1, marginRight: 16 }}>
+                            <Text style={styles.title}>{prod.title}</Text>
+                            {prod.discountPercentage > 0 && (
+                                <View style={styles.discountBadge}>
+                                    <Text style={styles.discountText}>
+                                        -{prod.discountPercentage}% REDUCERE
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
+                        <View style={{ alignItems: "flex-end" }}>
+                            <Text style={styles.price}>${prod.price}</Text>
+                            {prod.discountPercentage > 0 && (
+                                <Text style={styles.oldPrice}>
+                                    ${(prod.price / (1 - prod.discountPercentage / 100)).toFixed(2)}
+                                </Text>
+                            )}
+                        </View>
                     </View>
 
                     <View style={styles.badgeRow}>
@@ -139,14 +155,32 @@ export default function ArticlesScreen() {
                             <Ionicons name="star" size={16} color="#FFD700" />
                             <Text style={styles.badgeText}>{prod.rating}</Text>
                         </View>
-                        <View style={styles.badge}>
+                        <View style={[
+                            styles.badge, 
+                            prod.availabilityStatus === "Low Stock" ? { backgroundColor: "rgba(255, 149, 0, 0.1)" } : 
+                            prod.availabilityStatus === "Out of Stock" ? { backgroundColor: "rgba(255, 59, 48, 0.1)" } : 
+                            {}
+                        ]}>
                             <Ionicons
-                                name="cube-outline"
+                                name={
+                                    prod.availabilityStatus === "Low Stock" ? "warning-outline" : 
+                                    prod.availabilityStatus === "Out of Stock" ? "alert-circle" : 
+                                    "cube-outline"
+                                }
                                 size={16}
-                                color="#4A90E2"
+                                color={
+                                    prod.availabilityStatus === "Low Stock" ? "#FF9500" : 
+                                    prod.availabilityStatus === "Out of Stock" ? "#FF3B30" : 
+                                    "#4A90E2"
+                                }
                             />
-                            <Text style={styles.badgeText}>
-                                Stoc: {prod.stock}
+                            <Text style={[
+                                styles.badgeText, 
+                                prod.availabilityStatus === "Low Stock" ? { color: "#FF9500" } : 
+                                prod.availabilityStatus === "Out of Stock" ? { color: "#FF3B30" } : 
+                                {}
+                            ]}>
+                                {prod.availabilityStatus}
                             </Text>
                         </View>
                         <View style={styles.badge}>
@@ -163,6 +197,27 @@ export default function ArticlesScreen() {
 
                     <Text style={styles.sectionTitle}>Descriere</Text>
                     <Text style={styles.description}>{prod.description}</Text>
+
+                    {prod.reviews && prod.reviews.length > 0 && (
+                        <View style={styles.reviewsSection}>
+                            <Text style={[styles.sectionTitle, { marginTop: 30, marginBottom: 16 }]}>
+                                Review-uri ({prod.reviews.length})
+                            </Text>
+                            {prod.reviews.map((review: any, index: number) => (
+                                <View key={index} style={styles.reviewCard}>
+                                    <View style={styles.reviewHeader}>
+                                        <Text style={styles.reviewerName}>{review.reviewerName}</Text>
+                                        <View style={styles.reviewRating}>
+                                            <Ionicons name="star" size={14} color="#FFD700" />
+                                            <Text style={styles.reviewRatingText}>{review.rating}</Text>
+                                        </View>
+                                    </View>
+                                    <Text style={styles.reviewDate}>{new Date(review.date).toLocaleDateString("ro-RO", { year: 'numeric', month: 'long', day: 'numeric' })}</Text>
+                                    <Text style={styles.reviewComment}>{review.comment}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    )}
 
                     <View style={styles.bottomSpacer} />
                 </View>
@@ -251,8 +306,9 @@ export default function ArticlesScreen() {
                         />
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={styles.addToCartButton}
+                        style={[styles.addToCartButton, prod.availabilityStatus === "Out of Stock" ? { backgroundColor: "#D1D1D6", shadowOpacity: 0 } : {}]}
                         activeOpacity={0.8}
+                        disabled={prod.availabilityStatus === "Out of Stock"}
                         onPress={() => {
                             addToCart({
                                 id: prod.id.toString(),
@@ -263,7 +319,9 @@ export default function ArticlesScreen() {
                             });
                         }}
                     >
-                        <Text style={styles.addToCartText}>Adaugă în Coș</Text>
+                        <Text style={styles.addToCartText}>
+                            {prod.availabilityStatus === "Out of Stock" ? "Indisponibil" : "Adaugă în Coș"}
+                        </Text>
                     </TouchableOpacity>
                 </Animated.View>
             </View>
@@ -328,16 +386,34 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     title: {
-        flex: 1,
         fontSize: 26,
         fontWeight: "bold",
         color: "#1A1A1A",
-        marginRight: 16,
+    },
+    discountBadge: {
+        backgroundColor: "rgba(52, 199, 89, 0.15)",
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+        alignSelf: "flex-start",
+        marginTop: 6,
+    },
+    discountText: {
+        fontSize: 12,
+        fontWeight: "800",
+        color: "#28a745",
     },
     price: {
         fontSize: 26,
         fontWeight: "900",
         color: "#007AFF",
+    },
+    oldPrice: {
+        fontSize: 16,
+        color: "#8E8E93",
+        textDecorationLine: "line-through",
+        marginTop: 4,
+        textAlign: "right",
     },
     badgeRow: {
         flexDirection: "row",
@@ -373,6 +449,57 @@ const styles = StyleSheet.create({
     },
     bottomSpacer: {
         height: 80,
+    },
+    reviewsSection: {
+        marginTop: 10,
+    },
+    reviewCard: {
+        backgroundColor: "rgba(242, 243, 245, 0.6)",
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 12,
+        borderWidth: 1,
+        borderColor: "rgba(0,0,0,0.03)",
+    },
+    reviewHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 4,
+    },
+    reviewerName: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: "#1A1A1A",
+    },
+    reviewRating: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#FFFFFF",
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 1,
+    },
+    reviewRatingText: {
+        fontSize: 12,
+        fontWeight: "900",
+        marginLeft: 4,
+        color: "#1A1A1A",
+    },
+    reviewDate: {
+        fontSize: 12,
+        color: "#7E8A97",
+        marginBottom: 8,
+    },
+    reviewComment: {
+        fontSize: 14,
+        color: "#555",
+        lineHeight: 22,
     },
     bottomBarWrapper: {
         position: "absolute",

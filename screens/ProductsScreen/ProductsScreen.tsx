@@ -46,11 +46,18 @@ export default function ProductsScreen() {
             >
                 <View style={styles.glassContainer}>
                     {item.thumbnail ? (
-                        <Image
-                            source={{ uri: item.thumbnail }}
-                            style={styles.productImage}
-                            resizeMode="contain"
-                        />
+                        <View style={{ position: "relative" }}>
+                            <Image
+                                source={{ uri: item.thumbnail }}
+                                style={styles.productImage}
+                                resizeMode="contain"
+                            />
+                            {item.discountPercentage > 0 && (
+                                <View style={styles.absoluteDiscount}>
+                                    <Text style={styles.absoluteDiscountText}>-{item.discountPercentage}%</Text>
+                                </View>
+                            )}
+                        </View>
                     ) : (
                         <View style={styles.placeholderImage}>
                             <Ionicons
@@ -64,8 +71,31 @@ export default function ProductsScreen() {
                         <Text style={styles.productTitle} numberOfLines={1}>
                             {item.title}
                         </Text>
+                        
+                        <View style={styles.metaRow}>
+                            <View style={styles.ratingBadge}>
+                                <Ionicons name="star" size={10} color="#FFD700" />
+                                <Text style={styles.ratingText}>{item.rating}</Text>
+                            </View>
+                            <Text style={[
+                                styles.stockText, 
+                                item.availabilityStatus === "Low Stock" ? { color: "#FF9500" } : 
+                                item.availabilityStatus === "Out of Stock" ? { color: "#FF3B30" } : 
+                                {}
+                            ]}>
+                                {item.availabilityStatus || "In Stock"}
+                            </Text>
+                        </View>
+
                         <View style={styles.priceRow}>
-                            <Text style={styles.productPrice}>${item.price}</Text>
+                            <View>
+                                <Text style={styles.productPrice}>${item.price}</Text>
+                                {item.discountPercentage > 0 && (
+                                    <Text style={styles.oldPriceSmall}>
+                                        ${(item.price / (1 - item.discountPercentage / 100)).toFixed(2)}
+                                    </Text>
+                                )}
+                            </View>
                             <View style={styles.actionButtons}>
                                 <TouchableOpacity
                                     style={styles.favSmallBtn}
@@ -82,7 +112,8 @@ export default function ProductsScreen() {
                                     <Ionicons name={isFavourite(item.id.toString()) ? "heart" : "heart-outline"} size={20} color={isFavourite(item.id.toString()) ? "#FF3B30" : "#1A1A1A"} />
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    style={styles.addToCartSmallBtn}
+                                    style={[styles.addToCartSmallBtn, item.availabilityStatus === "Out of Stock" ? { backgroundColor: "#D1D1D6" } : {}]}
+                                    disabled={item.availabilityStatus === "Out of Stock"}
                                     onPress={(e) => {
                                         addToCart({
                                             id: item.id.toString(),
@@ -257,7 +288,54 @@ const styles = StyleSheet.create({
     productPrice: {
         fontSize: 16,
         fontWeight: "900",
-        color: "#007AFF", // Updated to match the blue theme used in ArticlesScreen
+        color: "#007AFF", 
+    },
+    oldPriceSmall: {
+        fontSize: 12,
+        color: "#8E8E93",
+        textDecorationLine: "line-through",
+        marginTop: 2,
+    },
+    metaRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 8,
+    },
+    ratingBadge: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#FFF",
+        paddingHorizontal: 4,
+        paddingVertical: 2,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: "rgba(0,0,0,0.05)",
+    },
+    ratingText: {
+        fontSize: 10,
+        fontWeight: "bold",
+        marginLeft: 2,
+        color: "#1A1A1A",
+    },
+    stockText: {
+        fontSize: 10,
+        fontWeight: "600",
+        color: "#4A90E2",
+    },
+    absoluteDiscount: {
+        position: "absolute",
+        top: 10,
+        left: 10,
+        backgroundColor: "#FF3B30",
+        paddingHorizontal: 6,
+        paddingVertical: 4,
+        borderRadius: 8,
+    },
+    absoluteDiscountText: {
+        color: "#FFF",
+        fontSize: 10,
+        fontWeight: "bold",
     },
     actionButtons: {
         flexDirection: "row",

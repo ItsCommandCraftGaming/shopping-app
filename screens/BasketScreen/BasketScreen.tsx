@@ -3,7 +3,6 @@ import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-    Alert,
     Image,
     ImageBackground,
     ScrollView,
@@ -13,8 +12,8 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useCart } from "../../hooks/useCart";
 import { useAlert } from "../../hooks/useAlert";
+import { useCart } from "../../hooks/useCart";
 
 export default function BasketScreen() {
     const router = useRouter();
@@ -33,7 +32,7 @@ export default function BasketScreen() {
             showAlert({
                 title: "Coș gol",
                 message: "Nu aveți produse în coș pentru a plasa o comandă.",
-                type: "info"
+                type: "info",
             });
             return;
         }
@@ -167,7 +166,7 @@ export default function BasketScreen() {
                                 Total de plată:
                             </Text>
                             <Text style={styles.totalValue}>
-                                {calculateTotal()} RON
+                                {calculateTotal().toFixed(2)} RON
                             </Text>
                         </View>
 
