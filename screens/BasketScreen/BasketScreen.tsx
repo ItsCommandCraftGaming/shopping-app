@@ -3,14 +3,16 @@ import {
     Alert,
     ScrollView,
     StyleSheet,
-    Text,
     TouchableOpacity,
     View,
     Image,
+    Text,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { useCart } from "../../context/CartContext";
 
 export default function BasketScreen() {
+    const router = useRouter();
     const { items, increaseQuantity, decreaseQuantity, removeItem, calculateTotal, clearCart } = useCart();
 
     const handleCheckout = () => {
@@ -21,11 +23,7 @@ export default function BasketScreen() {
             );
             return;
         }
-        Alert.alert(
-            "Succes!",
-            `Comanda în valoare de ${calculateTotal()} RON a fost plasată.`,
-        );
-        clearCart();
+        router.push("/basket/contact");
     };
 
     return (

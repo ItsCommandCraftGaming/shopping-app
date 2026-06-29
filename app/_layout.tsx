@@ -6,6 +6,8 @@ export default function RootLayout() {
     <CartProvider>
       <Stack>
         <Stack.Screen name={"(tabs)"} options={{ headerShown: false }} />
+        <Stack.Screen name="[contact]/index" options={{ headerShown: true, title: "Detalii Livrare" }} />
+        <Stack.Screen name="[contact]/[checkout]/index" options={{ headerShown: true, title: "Finalizare Comandă" }} />
       </Stack>
     </CartProvider>
   );

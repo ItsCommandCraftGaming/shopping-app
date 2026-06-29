@@ -11,6 +11,13 @@ export interface CartItem {
     image: string;
 }
 
+export interface ContactDetails {
+    fullName: string;
+    email: string;
+    phone: string;
+    address: string;
+}
+
 interface CartContextType {
     items: CartItem[];
     addToCart: (item: Omit<CartItem, "quantity">) => void;
@@ -19,14 +26,18 @@ interface CartContextType {
     removeItem: (id: string) => void;
     clearCart: () => void;
     calculateTotal: () => number;
+    contactDetails: ContactDetails | null;
+    saveContactDetails: (details: ContactDetails) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const CART_STORAGE_KEY = "@cart_items";
+const CONTACT_STORAGE_KEY = "@contact_details";
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
     const [items, setItems] = useState<CartItem[]>([]);
+    const [contactDetails, setContactDetailsState] = useState<ContactDetails | null>(null);
 
     useEffect(() => {
         loadCart();
@@ -38,8 +49,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             if (storedCart) {
                 setItems(JSON.parse(storedCart));
             }
+            const storedContact = await AsyncStorage.getItem(CONTACT_STORAGE_KEY);
+            if (storedContact) {
+                setContactDetailsState(JSON.parse(storedContact));
+            }
         } catch (error) {
-            console.error("Failed to load cart from storage", error);
+            console.error("Failed to load from storage", error);
         }
     };
 
@@ -49,6 +64,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             await AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newItems));
         } catch (error) {
             console.error("Failed to save cart to storage", error);
+        }
+    };
+
+    const saveContactDetails = async (details: ContactDetails) => {
+        setContactDetailsState(details);
+        try {
+            await AsyncStorage.setItem(CONTACT_STORAGE_KEY, JSON.stringify(details));
+        } catch (error) {
+            console.error("Failed to save contact details to storage", error);
         }
     };
 
@@ -108,6 +132,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 removeItem,
                 clearCart,
                 calculateTotal,
+                contactDetails,
+                saveContactDetails,
             }}
         >
             {children}
