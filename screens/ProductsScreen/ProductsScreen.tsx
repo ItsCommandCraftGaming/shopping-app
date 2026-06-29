@@ -14,7 +14,7 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useCart } from "../../context/CartContext";
+import { useCart } from "../../hooks/useCart";
 
 export default function ProductsScreen() {
     const router = useRouter();

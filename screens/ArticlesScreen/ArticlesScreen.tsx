@@ -22,7 +22,7 @@ import {
     SafeAreaView,
     useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { useCart } from "../../context/CartContext";
+import { useCart } from "../../hooks/useCart";
 
 if (Platform.OS === "android") {
     if (UIManager.setLayoutAnimationEnabledExperimental) {

@@ -18,7 +18,7 @@ export interface ContactDetails {
     address: string;
 }
 
-interface CartContextType {
+export interface CartContextType {
     items: CartItem[];
     addToCart: (item: Omit<CartItem, "quantity">) => void;
     increaseQuantity: (id: string) => void;
@@ -30,7 +30,7 @@ interface CartContextType {
     saveContactDetails: (details: ContactDetails) => void;
 }
 
-const CartContext = createContext<CartContextType | undefined>(undefined);
+export const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const CART_STORAGE_KEY = "@cart_items";
 const CONTACT_STORAGE_KEY = "@contact_details";
@@ -141,10 +141,4 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     );
 }
 
-export function useCart() {
-    const context = useContext(CartContext);
-    if (!context) {
-        throw new Error("useCart must be used within a CartProvider");
-    }
-    return context;
-}
+

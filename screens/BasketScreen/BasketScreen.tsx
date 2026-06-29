@@ -9,7 +9,7 @@ import {
     Text,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useCart } from "../../context/CartContext";
+import { useCart } from "../../hooks/useCart";
 
 export default function BasketScreen() {
     const router = useRouter();

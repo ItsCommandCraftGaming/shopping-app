@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, Image } from "react-native";
 import { useRouter } from "expo-router";
-import { useCart } from "../../context/CartContext";
+import { useCart } from "../../hooks/useCart";
 
 export default function CheckoutScreen() {
     const router = useRouter();
@@ -13,7 +13,7 @@ export default function CheckoutScreen() {
             `Comanda în valoare de ${calculateTotal()} RON a fost plasată cu succes.`
         );
         clearCart();
-        router.push("/home");
+        router.dismissAll();
     };
 
     if (!contactDetails) {
