@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
         padding: 30,
         borderRadius: 25,
         alignItems: "center",
-        backgroundColor: "rgba(255, 255, 255, 0.5)",
+        backgroundColor: "rgba(255, 255, 255, 0.2)",
         borderWidth: 1,
         borderColor: "rgba(255, 255, 255, 0.8)",
         overflow: "hidden",

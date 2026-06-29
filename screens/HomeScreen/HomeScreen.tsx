@@ -19,6 +19,67 @@ export default function HomeScreen() {
     const router = useRouter();
     const [isGridView, setIsGridView] = useState(true);
 
+    const getCategoryIcon = (slug: string): any => {
+        switch (slug) {
+            case "smartphones":
+                return "phone-portrait-outline";
+            case "laptops":
+                return "laptop-outline";
+            case "fragrances":
+                return "sparkles-outline";
+            case "skincare":
+                return "water";
+            case "groceries":
+                return "nutrition";
+            case "home-decoration":
+                return "home";
+            case "furniture":
+                return "bed";
+            case "tops":
+                return "shirt-outline";
+            case "womens-dresses":
+                return "woman";
+            case "womens-shoes":
+                return "footsteps-outline";
+            case "mens-shirts":
+                return "shirt";
+            case "mens-shoes":
+                return "footsteps";
+            case "mens-watches":
+                return "watch";
+            case "womens-watches":
+                return "watch-outline";
+            case "womens-bags":
+                return "briefcase-outline";
+            case "womens-jewellery":
+                return "diamond";
+            case "sunglasses":
+                return "glasses";
+            case "automotive":
+                return "car";
+            case "motorcycle":
+                return "bicycle";
+            case "lighting":
+                return "bulb";
+            case "beauty":
+                return "color-wand";
+            case "kitchen-accessories":
+                return "restaurant";
+            case "mobile-accessories":
+                return "headset";
+            case "skin-care":
+                return "water";
+            case "sports-accessories":
+                return "fitness";
+            case "tablets":
+                return "tablet-portrait-outline";
+            case "vehicle":
+                return "car-sport";
+            default:
+                return "cube";
+        }
+    };
+
     const renderItem = ({ item }: { item: any }) => {
         if (!isGridView) {
             return (
@@ -32,8 +93,25 @@ export default function HomeScreen() {
                     }}
                 >
                     <View style={styles.glassContainerList}>
-                        <Text style={styles.itemTextList}>{item.name}</Text>
-                        <Ionicons name="chevron-forward" size={20} color="#888" />
+                        <View
+                            style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                            }}
+                        >
+                            <Ionicons
+                                name={getCategoryIcon(item.slug)}
+                                size={24}
+                                color="#1A1A1A"
+                                style={{ marginRight: 12 }}
+                            />
+                            <Text style={styles.itemTextList}>{item.name}</Text>
+                        </View>
+                        <Ionicons
+                            name="chevron-forward"
+                            size={20}
+                            color="#888"
+                        />
                     </View>
                 </TouchableOpacity>
             );
@@ -50,6 +128,12 @@ export default function HomeScreen() {
                 }}
             >
                 <View style={styles.glassContainer}>
+                    <Ionicons
+                        name={getCategoryIcon(item.slug)}
+                        size={32}
+                        color="#1A1A1A"
+                        style={{ marginBottom: 12 }}
+                    />
                     <Text style={styles.itemText}>{item.name}</Text>
                 </View>
             </TouchableOpacity>
@@ -89,7 +173,11 @@ export default function HomeScreen() {
                             style={styles.viewToggleBtn}
                             activeOpacity={0.7}
                         >
-                            <Ionicons name={isGridView ? "list" : "grid"} size={22} color="#000" />
+                            <Ionicons
+                                name={isGridView ? "list" : "grid"}
+                                size={22}
+                                color="#000"
+                            />
                         </TouchableOpacity>
                     </View>
                 </SafeAreaView>
@@ -176,7 +264,7 @@ const styles = StyleSheet.create({
         paddingVertical: 18,
         paddingHorizontal: 20,
         borderRadius: 20,
-        backgroundColor: "rgba(255, 255, 255, 1)", 
+        backgroundColor: "rgba(255, 255, 255, 1)",
         borderWidth: 1,
         borderColor: "rgba(255, 255, 255, 0.8)",
         shadowColor: "#000",
