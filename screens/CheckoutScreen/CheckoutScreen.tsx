@@ -3,7 +3,6 @@ import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-    Alert,
     Image,
     ImageBackground,
     ScrollView,
@@ -14,18 +13,23 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useCart } from "../../hooks/useCart";
+import { useAlert } from "../../hooks/useAlert";
 
 export default function CheckoutScreen() {
     const router = useRouter();
     const { items, contactDetails, calculateTotal, clearCart } = useCart();
+    const { showAlert } = useAlert();
 
     const handleConfirm = () => {
-        Alert.alert(
-            "Succes!",
-            `Comanda în valoare de ${calculateTotal()} RON a fost plasată cu succes.`,
-        );
-        clearCart();
-        router.dismissAll();
+        showAlert({
+            title: "Succes!",
+            message: `Comanda în valoare de ${calculateTotal()} RON a fost plasată cu succes.`,
+            type: "success",
+            onConfirm: () => {
+                clearCart();
+                router.dismissAll();
+            }
+        });
     };
 
     if (!contactDetails) {

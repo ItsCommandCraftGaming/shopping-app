@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useCart } from "../../hooks/useCart";
+import { useAlert } from "../../hooks/useAlert";
 
 export default function BasketScreen() {
     const router = useRouter();
@@ -25,13 +26,15 @@ export default function BasketScreen() {
         calculateTotal,
         clearCart,
     } = useCart();
+    const { showAlert } = useAlert();
 
     const handleCheckout = () => {
         if (items.length === 0) {
-            Alert.alert(
-                "Coș gol",
-                "Nu aveți produse în coș pentru a plasa o comandă.",
-            );
+            showAlert({
+                title: "Coș gol",
+                message: "Nu aveți produse în coș pentru a plasa o comandă.",
+                type: "info"
+            });
             return;
         }
         router.push("../basket/contact");

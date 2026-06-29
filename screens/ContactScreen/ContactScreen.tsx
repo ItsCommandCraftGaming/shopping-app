@@ -14,10 +14,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useCart } from "../../hooks/useCart";
+import { useAlert } from "../../hooks/useAlert";
 
 export default function ContactScreen() {
     const router = useRouter();
     const { contactDetails, saveContactDetails } = useCart();
+    const { showAlert } = useAlert();
 
     const [fullName, setFullName] = useState(contactDetails?.fullName || "");
     const [email, setEmail] = useState(contactDetails?.email || "");
@@ -26,7 +28,11 @@ export default function ContactScreen() {
 
     const handleContinue = () => {
         if (!fullName || !email || !phone || !address) {
-            Alert.alert("Eroare", "Vă rugăm să completați toate câmpurile.");
+            showAlert({
+                title: "Eroare",
+                message: "Vă rugăm să completați toate câmpurile.",
+                type: "error"
+            });
             return;
         }
         saveContactDetails({ fullName, email, phone, address });
