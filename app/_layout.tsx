@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
+import { AlertProvider } from "../context/AlertProvider";
 import { CartProvider } from "../context/CartProvider";
 import { FavouritesProvider } from "../context/FavouritesProvider";
-import { AlertProvider } from "../context/AlertProvider";
 import { ThemeProvider } from "../context/ThemeProvider";
 
 export default function RootLayout() {

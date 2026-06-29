@@ -103,6 +103,7 @@ export default function BasketScreen() {
                         </Text>
                     </View>
                 </View>
+            ) : (
                 <ScrollView contentContainerStyle={styles.listContent}>
                     {items.map((item) => (
                         <View key={item.id} style={[styles.cartCard, { backgroundColor: glassBg, borderColor: glassBorder }]}>
