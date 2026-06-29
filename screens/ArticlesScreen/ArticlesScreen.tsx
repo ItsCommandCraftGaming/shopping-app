@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
+import { useTheme } from "../../context/ThemeProvider";
 import {
     ActivityIndicator,
     Dimensions,
@@ -40,6 +41,24 @@ export default function ArticlesScreen() {
     const insets = useSafeAreaInsets();
     const { addToCart } = useCart();
     const { toggleFavourite, isFavourite } = useFavourites();
+    const { isDarkMode } = useTheme();
+
+    const bgImageSource = isDarkMode
+        ? require("../../assets/images/dark-mode.png")
+        : require("../../assets/images/light-mode.png");
+
+    const textColor = isDarkMode ? "#F0F0F0" : "#1A1A1A";
+    const subTextColor = isDarkMode ? "#AAAAAA" : "#555555";
+    const titleColor = isDarkMode ? "#FFFFFF" : "#000000";
+    const detailsBg = isDarkMode ? "rgba(20, 20, 20, 0.95)" : "#FFFFFF";
+    const glassBg = isDarkMode ? "rgba(30, 30, 30, 0.7)" : "rgba(255, 255, 255, 0.8)";
+    const iconColor = isDarkMode ? "#FFFFFF" : "#1A1A1A";
+    const priceColor = isDarkMode ? "#66B2FF" : "#007AFF";
+    const buttonBg = isDarkMode ? "#FFFFFF" : "#1A1A1A";
+    const buttonIcon = isDarkMode ? "#1A1A1A" : "#FFFFFF";
+    const buttonDisabled = isDarkMode ? "#555555" : "#D1D1D6";
+    const reviewBg = isDarkMode ? "#2C2C2E" : "#F8F8F8";
+    const favBg = isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)";
 
     const { data: product, loading } = useFetch(
         articles ? `https://dummyjson.com/products/${articles}` : "",
@@ -110,8 +129,8 @@ export default function ArticlesScreen() {
 
     if (loading || !product) {
         return (
-            <View style={styles.loaderContainer}>
-                <ActivityIndicator size="large" color="#000000" />
+            <View style={[styles.loaderContainer, { backgroundColor: isDarkMode ? "#000" : "#FFF" }]}>
+                <ActivityIndicator size="large" color={iconColor} />
             </View>
         );
     }
@@ -120,9 +139,7 @@ export default function ArticlesScreen() {
 
     return (
         <ImageBackground
-            source={{
-                uri: "https://www.everwallpaper.co.uk/cdn/shop/products/11dreamy-pink-paint-mural-wallpaper-plain.jpg?v=1739777834",
-            }}
+            source={bgImageSource}
             resizeMode="cover"
             style={styles.container}
         >
@@ -174,10 +191,10 @@ export default function ArticlesScreen() {
                     )}
                 </View>
 
-                <View style={styles.detailsContainer}>
+                <View style={[styles.detailsContainer, { backgroundColor: detailsBg }]}>
                     <View style={styles.titleRow}>
                         <View style={{ flex: 1, marginRight: 16 }}>
-                            <Text style={styles.title}>{prod.title}</Text>
+                            <Text style={[styles.title, { color: titleColor }]}>{prod.title}</Text>
                             {prod.discountPercentage > 0 && (
                                 <View style={styles.discountBadge}>
                                     <Text style={styles.discountText}>
@@ -187,7 +204,7 @@ export default function ArticlesScreen() {
                             )}
                         </View>
                         <View style={{ alignItems: "flex-end" }}>
-                            <Text style={styles.price}>${prod.price}</Text>
+                            <Text style={[styles.price, { color: priceColor }]}>${prod.price}</Text>
                             {prod.discountPercentage > 0 && (
                                 <Text style={styles.oldPrice}>
                                     ${(prod.price / (1 - prod.discountPercentage / 100)).toFixed(2)}
@@ -197,9 +214,9 @@ export default function ArticlesScreen() {
                     </View>
 
                     <View style={styles.badgeRow}>
-                        <View style={styles.badge}>
+                        <View style={[styles.badge, { backgroundColor: favBg }]}>
                             <Ionicons name="star" size={16} color="#FFD700" />
-                            <Text style={styles.badgeText}>{prod.rating}</Text>
+                            <Text style={[styles.badgeText, { color: textColor }]}>{prod.rating}</Text>
                         </View>
                         <View style={[
                             styles.badge, 
@@ -229,37 +246,37 @@ export default function ArticlesScreen() {
                                 {prod.availabilityStatus}
                             </Text>
                         </View>
-                        <View style={styles.badge}>
+                        <View style={[styles.badge, { backgroundColor: favBg }]}>
                             <Ionicons
                                 name="pricetag-outline"
                                 size={16}
                                 color="#E24A4A"
                             />
-                            <Text style={styles.badgeText}>
+                            <Text style={[styles.badgeText, { color: textColor }]}>
                                 {prod.category}
                             </Text>
                         </View>
                     </View>
 
-                    <Text style={styles.sectionTitle}>Descriere</Text>
-                    <Text style={styles.description}>{prod.description}</Text>
+                    <Text style={[styles.sectionTitle, { color: titleColor }]}>Descriere</Text>
+                    <Text style={[styles.description, { color: subTextColor }]}>{prod.description}</Text>
 
                     {prod.reviews && prod.reviews.length > 0 && (
                         <View style={styles.reviewsSection}>
-                            <Text style={[styles.sectionTitle, { marginTop: 30, marginBottom: 16 }]}>
+                            <Text style={[styles.sectionTitle, { marginTop: 30, marginBottom: 16, color: titleColor }]}>
                                 Review-uri ({prod.reviews.length})
                             </Text>
                             {prod.reviews.map((review: any, index: number) => (
-                                <View key={index} style={styles.reviewCard}>
+                                <View key={index} style={[styles.reviewCard, { backgroundColor: reviewBg }]}>
                                     <View style={styles.reviewHeader}>
-                                        <Text style={styles.reviewerName}>{review.reviewerName}</Text>
-                                        <View style={styles.reviewRating}>
+                                        <Text style={[styles.reviewerName, { color: textColor }]}>{review.reviewerName}</Text>
+                                        <View style={[styles.reviewRating, { backgroundColor: detailsBg }]}>
                                             <Ionicons name="star" size={14} color="#FFD700" />
-                                            <Text style={styles.reviewRatingText}>{review.rating}</Text>
+                                            <Text style={[styles.reviewRatingText, { color: textColor }]}>{review.rating}</Text>
                                         </View>
                                     </View>
-                                    <Text style={styles.reviewDate}>{new Date(review.date).toLocaleDateString("ro-RO", { year: 'numeric', month: 'long', day: 'numeric' })}</Text>
-                                    <Text style={styles.reviewComment}>{review.comment}</Text>
+                                    <Text style={[styles.reviewDate, { color: subTextColor }]}>{new Date(review.date).toLocaleDateString("ro-RO", { year: 'numeric', month: 'long', day: 'numeric' })}</Text>
+                                    <Text style={[styles.reviewComment, { color: textColor }]}>{review.comment}</Text>
                                 </View>
                             ))}
                         </View>
@@ -277,10 +294,10 @@ export default function ArticlesScreen() {
             >
                 <TouchableOpacity
                     onPress={() => router.back()}
-                    style={styles.backButton}
+                    style={[styles.backButton, { backgroundColor: glassBg }]}
                     activeOpacity={0.7}
                 >
-                    <Ionicons name="arrow-back" size={24} color="#000" />
+                    <Ionicons name="arrow-back" size={24} color={iconColor} />
                 </TouchableOpacity>
             </SafeAreaView>
 
@@ -288,7 +305,7 @@ export default function ArticlesScreen() {
             <View style={styles.bottomBarWrapper}>
                 <BlurView
                     intensity={80}
-                    tint="light"
+                    tint={isDarkMode ? "dark" : "light"}
                     style={StyleSheet.absoluteFillObject}
                 />
 
@@ -302,19 +319,19 @@ export default function ArticlesScreen() {
 
                 <Animated.View style={{ height: contentHeight, opacity: contentOpacity, overflow: 'hidden' }}>
                     <View style={styles.expandedContent}>
-                        <Text style={styles.expandedTitle}>Sumar Coș</Text>
+                        <Text style={[styles.expandedTitle, { color: titleColor }]}>Sumar Coș</Text>
                         <View style={styles.expandedRow}>
-                            <Text style={styles.expandedText}>{prod.title}</Text>
-                            <Text style={styles.expandedPrice}>${prod.price}</Text>
+                            <Text style={[styles.expandedText, { color: textColor }]}>{prod.title}</Text>
+                            <Text style={[styles.expandedPrice, { color: textColor }]}>${prod.price}</Text>
                         </View>
                         <View style={styles.expandedRow}>
-                            <Text style={styles.expandedText}>Transport estimat</Text>
-                            <Text style={styles.expandedPrice}>$5.99</Text>
+                            <Text style={[styles.expandedText, { color: textColor }]}>Transport estimat</Text>
+                            <Text style={[styles.expandedPrice, { color: textColor }]}>$5.99</Text>
                         </View>
-                        <View style={styles.divider} />
+                        <View style={[styles.divider, { backgroundColor: favBg }]} />
                         <View style={styles.expandedRow}>
-                            <Text style={styles.totalText}>Total</Text>
-                            <Text style={styles.totalPrice}>${(prod.price + 5.99).toFixed(2)}</Text>
+                            <Text style={[styles.totalText, { color: titleColor }]}>Total</Text>
+                            <Text style={[styles.totalPrice, { color: priceColor }]}>${(prod.price + 5.99).toFixed(2)}</Text>
                         </View>
                     </View>
                 </Animated.View>
@@ -322,7 +339,7 @@ export default function ArticlesScreen() {
                 {/* Inner container gets the dynamic padding */}
                 <Animated.View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 16) + 90, paddingTop: barPaddingTop }]}>
                     <TouchableOpacity
-                        style={styles.favButton}
+                        style={[styles.favButton, { backgroundColor: favBg }]}
                         activeOpacity={0.8}
                         onPress={() => {
                             toggleFavourite({
@@ -337,23 +354,27 @@ export default function ArticlesScreen() {
                         <Ionicons
                             name={isFavourite(prod.id.toString()) ? "heart" : "heart-outline"}
                             size={28}
-                            color={isFavourite(prod.id.toString()) ? "#FF3B30" : "#1A1A1A"}
+                            color={isFavourite(prod.id.toString()) ? "#FF3B30" : iconColor}
                         />
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={styles.goToBasketButton}
+                        style={[styles.goToBasketButton, { backgroundColor: favBg }]}
                         activeOpacity={0.8}
                         onPress={() => router.navigate("/basket")}
                     >
                         <Ionicons
                             name="basket-outline"
                             size={28}
-                            color="#1A1A1A"
+                            color={iconColor}
                         />
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.addToCartButton, prod.availabilityStatus === "Out of Stock" ? { backgroundColor: "#D1D1D6", shadowOpacity: 0 } : {}]}
-                        activeOpacity={0.8}
+                        style={[
+                            styles.addToCartButton,
+                            { backgroundColor: buttonBg },
+                            prod.availabilityStatus === "Out of Stock" ? { backgroundColor: buttonDisabled } : {}
+                        ]}
+                        activeOpacity={0.9}
                         disabled={prod.availabilityStatus === "Out of Stock"}
                         onPress={() => {
                             addToCart({
@@ -365,8 +386,9 @@ export default function ArticlesScreen() {
                             });
                         }}
                     >
-                        <Text style={styles.addToCartText}>
-                            {prod.availabilityStatus === "Out of Stock" ? "Indisponibil" : "Adaugă în Coș"}
+                        <Ionicons name="cart" size={24} color={buttonIcon} />
+                        <Text style={[styles.addToCartText, { color: buttonIcon }]}>
+                            {prod.availabilityStatus === "Out of Stock" ? "Stoc Epuizat" : "Adaugă în coș"}
                         </Text>
                     </TouchableOpacity>
                 </Animated.View>

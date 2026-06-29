@@ -15,16 +15,31 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useCart } from "../../hooks/useCart";
 import { useAlert } from "../../hooks/useAlert";
+import { useTheme } from "../../context/ThemeProvider";
 
 export default function ContactScreen() {
     const router = useRouter();
     const { contactDetails, saveContactDetails } = useCart();
     const { showAlert } = useAlert();
+    const { isDarkMode } = useTheme();
 
     const [fullName, setFullName] = useState(contactDetails?.fullName || "");
     const [email, setEmail] = useState(contactDetails?.email || "");
     const [phone, setPhone] = useState(contactDetails?.phone || "");
     const [address, setAddress] = useState(contactDetails?.address || "");
+
+    const bgImageSource = isDarkMode
+        ? require("../../assets/images/dark-mode.png")
+        : require("../../assets/images/light-mode.png");
+
+    const textColor = isDarkMode ? "#F0F0F0" : "#1A1A1A";
+    const titleColor = isDarkMode ? "#FFFFFF" : "#000000";
+    const glassBg = isDarkMode ? "rgba(30, 30, 30, 0.7)" : "rgba(255, 255, 255, 1)";
+    const glassBorder = isDarkMode ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.8)";
+    const iconColor = isDarkMode ? "#FFFFFF" : "#000000";
+    const buttonBg = isDarkMode ? "#FFFFFF" : "#1A1A1A";
+    const buttonIcon = isDarkMode ? "#1A1A1A" : "#FFFFFF";
+    const placeholderColor = isDarkMode ? "#AAAAAA" : "#888888";
 
     const handleContinue = () => {
         if (!fullName || !email || !phone || !address) {
@@ -41,16 +56,14 @@ export default function ContactScreen() {
 
     return (
         <ImageBackground
-            source={{
-                uri: "https://www.everwallpaper.co.uk/cdn/shop/products/11dreamy-pink-paint-mural-wallpaper-plain.jpg?v=1739777834",
-            }}
+            source={bgImageSource}
             resizeMode="cover"
             style={styles.container}
         >
             <View style={styles.headerWrapper}>
                 <BlurView
                     intensity={20}
-                    tint="light"
+                    tint={isDarkMode ? "dark" : "light"}
                     style={StyleSheet.absoluteFillObject}
                     experimentalBlurMethod="dimezisBlurView"
                 />
@@ -58,16 +71,16 @@ export default function ContactScreen() {
                     <View style={styles.headerRow}>
                         <TouchableOpacity
                             onPress={() => router.back()}
-                            style={styles.backButton}
+                            style={[styles.backButton, { backgroundColor: isDarkMode ? "rgba(30, 30, 30, 0.5)" : "rgba(255, 255, 255, 0.5)" }]}
                             activeOpacity={0.7}
                         >
                             <Ionicons
                                 name="arrow-back"
                                 size={24}
-                                color="#000"
+                                color={iconColor}
                             />
                         </TouchableOpacity>
-                        <Text style={styles.title} numberOfLines={1}>
+                        <Text style={[styles.title, { color: titleColor }]} numberOfLines={1}>
                             Detalii Livrare
                         </Text>
                     </View>
@@ -76,55 +89,59 @@ export default function ContactScreen() {
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Nume complet</Text>
+                    <Text style={[styles.label, { color: textColor }]}>Nume complet</Text>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: glassBg, borderColor: glassBorder, color: textColor }]}
                         value={fullName}
                         onChangeText={setFullName}
                         placeholder="Ion Popescu"
+                        placeholderTextColor={placeholderColor}
                     />
                 </View>
 
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Email</Text>
+                    <Text style={[styles.label, { color: textColor }]}>Email</Text>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: glassBg, borderColor: glassBorder, color: textColor }]}
                         value={email}
                         onChangeText={setEmail}
                         placeholder="ion.popescu@exemplu.com"
+                        placeholderTextColor={placeholderColor}
                         keyboardType="email-address"
                         autoCapitalize="none"
                     />
                 </View>
 
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Telefon</Text>
+                    <Text style={[styles.label, { color: textColor }]}>Telefon</Text>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: glassBg, borderColor: glassBorder, color: textColor }]}
                         value={phone}
                         onChangeText={setPhone}
                         placeholder="07XX XXX XXX"
+                        placeholderTextColor={placeholderColor}
                         keyboardType="phone-pad"
                     />
                 </View>
 
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Adresă de livrare</Text>
+                    <Text style={[styles.label, { color: textColor }]}>Adresă de livrare</Text>
                     <TextInput
-                        style={[styles.input, styles.textArea]}
+                        style={[styles.input, styles.textArea, { backgroundColor: glassBg, borderColor: glassBorder, color: textColor }]}
                         value={address}
                         onChangeText={setAddress}
                         placeholder="Strada, Număr, Oraș, Județ"
+                        placeholderTextColor={placeholderColor}
                         multiline
                         numberOfLines={4}
                     />
                 </View>
 
                 <TouchableOpacity
-                    style={styles.continueBtn}
+                    style={[styles.continueBtn, { backgroundColor: buttonBg }]}
                     onPress={handleContinue}
                 >
-                    <Text style={styles.continueBtnText}>
+                    <Text style={[styles.continueBtnText, { color: buttonIcon }]}>
                         Continuă spre plată
                     </Text>
                 </TouchableOpacity>

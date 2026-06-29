@@ -14,11 +14,28 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useCart } from "../../hooks/useCart";
 import { useAlert } from "../../hooks/useAlert";
+import { useTheme } from "../../context/ThemeProvider";
 
 export default function CheckoutScreen() {
     const router = useRouter();
     const { items, contactDetails, calculateTotal, clearCart } = useCart();
     const { showAlert } = useAlert();
+    const { isDarkMode } = useTheme();
+
+    const bgImageSource = isDarkMode
+        ? require("../../assets/images/dark-mode.png")
+        : require("../../assets/images/light-mode.png");
+
+    const textColor = isDarkMode ? "#F0F0F0" : "#1A1A1A";
+    const titleColor = isDarkMode ? "#FFFFFF" : "#000000";
+    const subTextColor = isDarkMode ? "#AAAAAA" : "#555555";
+    const glassBg = isDarkMode ? "rgba(30, 30, 30, 0.7)" : "rgba(255, 255, 255, 1)";
+    const glassBorder = isDarkMode ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.8)";
+    const iconColor = isDarkMode ? "#FFFFFF" : "#000000";
+    const priceColor = isDarkMode ? "#66B2FF" : "#007AFF";
+    const buttonBg = isDarkMode ? "#FFFFFF" : "#1A1A1A";
+    const buttonIcon = isDarkMode ? "#1A1A1A" : "#FFFFFF";
+    const itemDivider = isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)";
 
     const handleConfirm = () => {
         showAlert({
@@ -42,16 +59,14 @@ export default function CheckoutScreen() {
 
     return (
         <ImageBackground
-            source={{
-                uri: "https://www.everwallpaper.co.uk/cdn/shop/products/11dreamy-pink-paint-mural-wallpaper-plain.jpg?v=1739777834",
-            }}
+            source={bgImageSource}
             resizeMode="cover"
             style={styles.container}
         >
             <View style={styles.headerWrapper}>
                 <BlurView
                     intensity={20}
-                    tint="light"
+                    tint={isDarkMode ? "dark" : "light"}
                     style={StyleSheet.absoluteFillObject}
                     experimentalBlurMethod="dimezisBlurView"
                 />
@@ -59,16 +74,16 @@ export default function CheckoutScreen() {
                     <View style={styles.headerRow}>
                         <TouchableOpacity
                             onPress={() => router.back()}
-                            style={styles.backButton}
+                            style={[styles.backButton, { backgroundColor: isDarkMode ? "rgba(30, 30, 30, 0.5)" : "rgba(255, 255, 255, 0.5)" }]}
                             activeOpacity={0.7}
                         >
                             <Ionicons
                                 name="arrow-back"
                                 size={24}
-                                color="#000"
+                                color={iconColor}
                             />
                         </TouchableOpacity>
-                        <Text style={styles.title} numberOfLines={1}>
+                        <Text style={[styles.title, { color: titleColor }]} numberOfLines={1}>
                             Sumar Comandă
                         </Text>
                     </View>
@@ -79,28 +94,28 @@ export default function CheckoutScreen() {
                 style={styles.container}
                 contentContainerStyle={styles.scrollContent}
             >
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Adresă de livrare</Text>
-                    <Text style={styles.detailText}>
+                <View style={[styles.section, { backgroundColor: glassBg, borderColor: glassBorder }]}>
+                    <Text style={[styles.sectionTitle, { color: titleColor }]}>Adresă de livrare</Text>
+                    <Text style={[styles.detailText, { color: subTextColor }]}>
                         {contactDetails.fullName}
                     </Text>
-                    <Text style={styles.detailText}>
+                    <Text style={[styles.detailText, { color: subTextColor }]}>
                         {contactDetails.phone}
                     </Text>
-                    <Text style={styles.detailText}>
+                    <Text style={[styles.detailText, { color: subTextColor }]}>
                         {contactDetails.email}
                     </Text>
-                    <Text style={styles.detailText}>
+                    <Text style={[styles.detailText, { color: subTextColor }]}>
                         {contactDetails.address}
                     </Text>
                 </View>
 
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>
+                <View style={[styles.section, { backgroundColor: glassBg, borderColor: glassBorder }]}>
+                    <Text style={[styles.sectionTitle, { color: titleColor }]}>
                         Produse ({items.length})
                     </Text>
                     {items.map((item) => (
-                        <View key={item.id} style={styles.itemRow}>
+                        <View key={item.id} style={[styles.itemRow, { borderBottomColor: itemDivider }]}>
                             {item.image && (
                                 <Image
                                     source={{ uri: item.image }}
@@ -109,30 +124,30 @@ export default function CheckoutScreen() {
                                 />
                             )}
                             <View style={styles.itemInfo}>
-                                <Text style={styles.itemName}>{item.name}</Text>
-                                <Text style={styles.itemQuantity}>
+                                <Text style={[styles.itemName, { color: textColor }]}>{item.name}</Text>
+                                <Text style={[styles.itemQuantity, { color: subTextColor }]}>
                                     Cantitate: {item.quantity}
                                 </Text>
                             </View>
-                            <Text style={styles.itemPrice}>
+                            <Text style={[styles.itemPrice, { color: priceColor }]}>
                                 {item.price * item.quantity} RON
                             </Text>
                         </View>
                     ))}
                 </View>
 
-                <View style={styles.totalSection}>
-                    <Text style={styles.totalLabel}>Total de plată</Text>
-                    <Text style={styles.totalValue}>
+                <View style={[styles.totalSection, { borderTopColor: itemDivider }]}>
+                    <Text style={[styles.totalLabel, { color: textColor }]}>Total de plată</Text>
+                    <Text style={[styles.totalValue, { color: priceColor }]}>
                         {calculateTotal()} RON
                     </Text>
                 </View>
 
                 <TouchableOpacity
-                    style={styles.confirmBtn}
+                    style={[styles.confirmBtn, { backgroundColor: buttonBg }]}
                     onPress={handleConfirm}
                 >
-                    <Text style={styles.confirmBtnText}>Confirmă Comanda</Text>
+                    <Text style={[styles.confirmBtnText, { color: buttonIcon }]}>Confirmă Comanda</Text>
                 </TouchableOpacity>
             </ScrollView>
         </ImageBackground>

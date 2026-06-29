@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
+import { useTheme } from "../../context/ThemeProvider";
 import {
     ActivityIndicator,
     FlatList,
@@ -24,6 +25,23 @@ export default function SearchScreen() {
     const [debouncedQuery, setDebouncedQuery] = useState("");
     const { addToCart } = useCart();
     const { toggleFavourite, isFavourite } = useFavourites();
+    const { isDarkMode } = useTheme();
+
+    const bgImageSource = isDarkMode
+        ? require("../../assets/images/dark-mode.png")
+        : require("../../assets/images/light-mode.png");
+
+    const textColor = isDarkMode ? "#F0F0F0" : "#1A1A1A";
+    const headerTextColor = isDarkMode ? "#FFFFFF" : "#000000";
+    const glassBg = isDarkMode ? "rgba(30, 30, 30, 0.7)" : "rgba(255, 255, 255, 1)";
+    const glassBorder = isDarkMode ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.8)";
+    const iconColor = isDarkMode ? "#FFFFFF" : "#1A1A1A";
+    const searchBg = isDarkMode ? "rgba(30, 30, 30, 0.6)" : "rgba(255, 255, 255, 0.6)";
+    const priceColor = isDarkMode ? "#66B2FF" : "#007AFF";
+    const favBg = isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)";
+    const buttonBg = isDarkMode ? "#FFFFFF" : "#1A1A1A";
+    const buttonIcon = isDarkMode ? "#1A1A1A" : "#FFFFFF";
+    const buttonDisabled = isDarkMode ? "#555555" : "#D1D1D6";
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -60,7 +78,7 @@ export default function SearchScreen() {
                     });
                 }}
             >
-                <View style={styles.glassContainer}>
+                <View style={[styles.glassContainer, { backgroundColor: glassBg, borderColor: glassBorder }]}>
                     {item.thumbnail ? (
                         <View style={{ position: "relative" }}>
                             <Image
@@ -86,18 +104,18 @@ export default function SearchScreen() {
                         </View>
                     )}
                     <View style={styles.infoContainer}>
-                        <Text style={styles.productTitle} numberOfLines={1}>
+                        <Text style={[styles.productTitle, { color: textColor }]} numberOfLines={1}>
                             {item.title}
                         </Text>
 
                         <View style={styles.metaRow}>
-                            <View style={styles.ratingBadge}>
+                            <View style={[styles.ratingBadge, { backgroundColor: favBg }]}>
                                 <Ionicons
                                     name="star"
                                     size={10}
                                     color="#FFD700"
                                 />
-                                <Text style={styles.ratingText}>
+                                <Text style={[styles.ratingText, { color: textColor }]}>
                                     {item.rating}
                                 </Text>
                             </View>
@@ -118,7 +136,7 @@ export default function SearchScreen() {
 
                         <View style={styles.priceRow}>
                             <View>
-                                <Text style={styles.productPrice}>
+                                <Text style={[styles.productPrice, { color: priceColor }]}>
                                     ${item.price}
                                 </Text>
                                 {item.discountPercentage > 0 && (
@@ -133,7 +151,7 @@ export default function SearchScreen() {
                             </View>
                             <View style={styles.actionButtons}>
                                 <TouchableOpacity
-                                    style={styles.favSmallBtn}
+                                    style={[styles.favSmallBtn, { backgroundColor: favBg }]}
                                     onPress={(e) => {
                                         toggleFavourite({
                                             id: item.id.toString(),
@@ -155,16 +173,17 @@ export default function SearchScreen() {
                                         color={
                                             isFavourite(item.id.toString())
                                                 ? "#FF3B30"
-                                                : "#1A1A1A"
+                                                : iconColor
                                         }
                                     />
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={[
                                         styles.addToCartSmallBtn,
+                                        { backgroundColor: buttonBg },
                                         item.availabilityStatus ===
                                         "Out of Stock"
-                                            ? { backgroundColor: "#D1D1D6" }
+                                            ? { backgroundColor: buttonDisabled }
                                             : {},
                                     ]}
                                     disabled={
@@ -185,7 +204,7 @@ export default function SearchScreen() {
                                     <Ionicons
                                         name="cart"
                                         size={18}
-                                        color="#FFF"
+                                        color={buttonIcon}
                                     />
                                 </TouchableOpacity>
                             </View>
@@ -198,9 +217,7 @@ export default function SearchScreen() {
 
     return (
         <ImageBackground
-            source={{
-                uri: "https://www.everwallpaper.co.uk/cdn/shop/products/11dreamy-pink-paint-mural-wallpaper-plain.jpg?v=1739777834",
-            }}
+            source={bgImageSource}
             resizeMode="cover"
             style={styles.container}
         >
@@ -208,18 +225,18 @@ export default function SearchScreen() {
                 <View style={styles.emptyContainer}>
                     <BlurView
                         intensity={30}
-                        tint="light"
-                        style={styles.emptyCard}
+                        tint={isDarkMode ? "dark" : "light"}
+                        style={[styles.emptyCard, { borderColor: glassBorder, backgroundColor: glassBg }]}
                         experimentalBlurMethod="dimezisBlurView"
                     >
                         <Ionicons
                             name="search"
                             size={60}
-                            color="#1A1A1A"
+                            color={iconColor}
                             style={{ marginBottom: 16 }}
                         />
-                        <Text style={styles.emptyTitle}>Căutare Globală</Text>
-                        <Text style={styles.emptySubtitle}>
+                        <Text style={[styles.emptyTitle, { color: textColor }]}>Căutare Globală</Text>
+                        <Text style={[styles.emptySubtitle, { color: isDarkMode ? "#AAA" : "#555" }]}>
                             Introdu minim 3 litere pentru a căuta prin absolut
                             toate produsele din magazin.
                         </Text>
@@ -227,7 +244,7 @@ export default function SearchScreen() {
                 </View>
             ) : loading ? (
                 <View style={styles.loaderContainer}>
-                    <ActivityIndicator size="large" color="#ffffff" />
+                    <ActivityIndicator size="large" color={iconColor} />
                 </View>
             ) : (
                 <FlatList
@@ -244,20 +261,20 @@ export default function SearchScreen() {
                         <View style={styles.emptyContainer}>
                             <BlurView
                                 intensity={30}
-                                tint="light"
-                                style={styles.emptyCard}
+                                tint={isDarkMode ? "dark" : "light"}
+                                style={[styles.emptyCard, { borderColor: glassBorder, backgroundColor: glassBg }]}
                                 experimentalBlurMethod="dimezisBlurView"
                             >
                                 <Ionicons
                                     name="alert-circle-outline"
                                     size={60}
-                                    color="#1A1A1A"
+                                    color={iconColor}
                                     style={{ marginBottom: 16 }}
                                 />
-                                <Text style={styles.emptyTitle}>
+                                <Text style={[styles.emptyTitle, { color: textColor }]}>
                                     Niciun rezultat
                                 </Text>
-                                <Text style={styles.emptySubtitle}>
+                                <Text style={[styles.emptySubtitle, { color: isDarkMode ? "#AAA" : "#555" }]}>
                                     Nu am găsit niciun produs care să conțină "
                                     {debouncedQuery}".
                                 </Text>
@@ -267,29 +284,28 @@ export default function SearchScreen() {
                 />
             )}
 
-            {/* Floating Blurred Header */}
             <View style={styles.headerWrapper}>
                 <BlurView
                     intensity={20}
-                    tint="light"
+                    tint={isDarkMode ? "dark" : "light"}
                     style={StyleSheet.absoluteFillObject}
                     experimentalBlurMethod="dimezisBlurView"
                 />
                 <SafeAreaView edges={["top"]} style={styles.headerSafeArea}>
                     <View style={styles.headerRow}>
-                        <Text style={styles.title} numberOfLines={1}>
+                        <Text style={[styles.title, { color: headerTextColor }]} numberOfLines={1}>
                             Căutare Globală
                         </Text>
                     </View>
 
-                    <View style={styles.searchContainer}>
-                        <Ionicons name="search" size={20} color="#888" />
+                    <View style={[styles.searchContainer, { backgroundColor: searchBg, borderColor: glassBorder }]}>
+                        <Ionicons name="search" size={20} color={iconColor} />
                         <TextInput
-                            style={styles.searchInput}
+                            style={[styles.searchInput, { color: textColor }]}
                             placeholder="Caută în tot magazinul..."
                             value={searchQuery}
                             onChangeText={setSearchQuery}
-                            placeholderTextColor="#888"
+                            placeholderTextColor={isDarkMode ? "#AAA" : "#888"}
                             autoCapitalize="none"
                             autoCorrect={false}
                         />

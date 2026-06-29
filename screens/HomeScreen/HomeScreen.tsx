@@ -1,8 +1,9 @@
-import useFetch from "@/hooks/useFetch";
+import useFetch from "../../hooks/useFetch";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
+import { useTheme } from "../../context/ThemeProvider";
 import {
     FlatList,
     ImageBackground,
@@ -18,6 +19,19 @@ export default function HomeScreen() {
 
     const router = useRouter();
     const [isGridView, setIsGridView] = useState(true);
+    const { isDarkMode, toggleTheme } = useTheme();
+
+    const bgImageSource = isDarkMode
+        ? require("../../assets/images/dark-mode.png")
+        : require("../../assets/images/light-mode.png");
+
+    const textColor = isDarkMode ? "#F0F0F0" : "#1A1A1A";
+    const headerTextColor = isDarkMode ? "#FFFFFF" : "#000000";
+    const glassBg = isDarkMode ? "rgba(30, 30, 30, 0.7)" : "rgba(255, 255, 255, 1)";
+    const glassBorder = isDarkMode ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.8)";
+    const toggleBg = isDarkMode ? "rgba(30, 30, 30, 0.5)" : "rgba(255, 255, 255, 0.5)";
+    const iconColor = isDarkMode ? "#FFFFFF" : "#1A1A1A";
+    const chevronColor = isDarkMode ? "#AAAAAA" : "#888888";
 
     const getCategoryIcon = (slug: string): any => {
         switch (slug) {
@@ -92,7 +106,7 @@ export default function HomeScreen() {
                         });
                     }}
                 >
-                    <View style={styles.glassContainerList}>
+                    <View style={[styles.glassContainerList, { backgroundColor: glassBg, borderColor: glassBorder }]}>
                         <View
                             style={{
                                 flexDirection: "row",
@@ -102,15 +116,15 @@ export default function HomeScreen() {
                             <Ionicons
                                 name={getCategoryIcon(item.slug)}
                                 size={24}
-                                color="#1A1A1A"
+                                color={iconColor}
                                 style={{ marginRight: 12 }}
                             />
-                            <Text style={styles.itemTextList}>{item.name}</Text>
+                            <Text style={[styles.itemTextList, { color: textColor }]}>{item.name}</Text>
                         </View>
                         <Ionicons
                             name="chevron-forward"
                             size={20}
-                            color="#888"
+                            color={chevronColor}
                         />
                     </View>
                 </TouchableOpacity>
@@ -127,14 +141,14 @@ export default function HomeScreen() {
                     });
                 }}
             >
-                <View style={styles.glassContainer}>
+                <View style={[styles.glassContainer, { backgroundColor: glassBg, borderColor: glassBorder }]}>
                     <Ionicons
                         name={getCategoryIcon(item.slug)}
                         size={32}
-                        color="#1A1A1A"
+                        color={iconColor}
                         style={{ marginBottom: 12 }}
                     />
-                    <Text style={styles.itemText}>{item.name}</Text>
+                    <Text style={[styles.itemText, { color: textColor }]}>{item.name}</Text>
                 </View>
             </TouchableOpacity>
         );
@@ -142,9 +156,7 @@ export default function HomeScreen() {
 
     return (
         <ImageBackground
-            source={{
-                uri: "https://www.everwallpaper.co.uk/cdn/shop/products/11dreamy-pink-paint-mural-wallpaper-plain.jpg?v=1739777834",
-            }}
+            source={bgImageSource}
             resizeMode="cover"
             style={styles.container}
         >
@@ -162,23 +174,38 @@ export default function HomeScreen() {
             <View style={styles.headerWrapper}>
                 <BlurView
                     intensity={20}
+                    tint={isDarkMode ? "dark" : "light"}
                     style={StyleSheet.absoluteFillObject}
                     experimentalBlurMethod="dimezisBlurView"
                 />
                 <SafeAreaView edges={["top"]} style={styles.headerSafeArea}>
                     <View style={styles.headerRow}>
-                        <Text style={styles.title}>Categorii</Text>
-                        <TouchableOpacity
-                            onPress={() => setIsGridView(!isGridView)}
-                            style={styles.viewToggleBtn}
-                            activeOpacity={0.7}
-                        >
-                            <Ionicons
-                                name={isGridView ? "list" : "grid"}
-                                size={22}
-                                color="#000"
-                            />
-                        </TouchableOpacity>
+                        <Text style={[styles.title, { color: headerTextColor }]}>Categorii</Text>
+                        <View style={{ flexDirection: "row" }}>
+                            <TouchableOpacity
+                                onPress={toggleTheme}
+                                style={[styles.viewToggleBtn, { backgroundColor: toggleBg, marginRight: 10 }]}
+                                activeOpacity={0.7}
+                            >
+                                <Ionicons
+                                    name={isDarkMode ? "moon" : "sunny"}
+                                    size={22}
+                                    color={iconColor}
+                                />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                onPress={() => setIsGridView(!isGridView)}
+                                style={[styles.viewToggleBtn, { backgroundColor: toggleBg }]}
+                                activeOpacity={0.7}
+                            >
+                                <Ionicons
+                                    name={isGridView ? "list" : "grid"}
+                                    size={22}
+                                    color={iconColor}
+                                />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </SafeAreaView>
             </View>

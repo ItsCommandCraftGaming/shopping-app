@@ -10,9 +10,11 @@ import Animated, {
 } from "react-native-reanimated";
 import { useCart } from "../../hooks/useCart";
 import { useFavourites } from "../../hooks/useFavourites";
+import { useTheme } from "../../context/ThemeProvider";
 
 function TabBarBackground() {
   const pathname = usePathname();
+  const { isDarkMode } = useTheme();
   const isSearch = pathname.includes("search");
   const isFav = pathname.includes("favourites");
   const isBasket = pathname.includes("basket");
@@ -52,6 +54,7 @@ function TabBarBackground() {
     <View style={StyleSheet.absoluteFillObject}>
       <BlurView
         intensity={20}
+        tint={isDarkMode ? "dark" : "light"}
         experimentalBlurMethod="dimezisBlurView"
         style={{
           ...StyleSheet.absoluteFillObject,
@@ -125,6 +128,7 @@ function TabBarBackground() {
 export default function TabLayout() {
   const { items } = useCart();
   const { favourites } = useFavourites();
+  const { isDarkMode } = useTheme();
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
@@ -137,7 +141,7 @@ export default function TabLayout() {
           bottom: 25,
           left: 50,
           right: 50,
-          backgroundColor: "rgba(255, 255, 255, 0.3)",
+          backgroundColor: isDarkMode ? "rgba(30, 30, 30, 0.5)" : "rgba(255, 255, 255, 0.3)",
           borderRadius: 35,
           height: 70,
           shadowColor: "#000",
@@ -156,8 +160,8 @@ export default function TabLayout() {
         tabBarItemStyle: {
           paddingTop: 10,
         },
-        tabBarActiveTintColor: "#1A1A1A",
-        tabBarInactiveTintColor: "#8E8E93",
+        tabBarActiveTintColor: isDarkMode ? "#FFFFFF" : "#1A1A1A",
+        tabBarInactiveTintColor: isDarkMode ? "#AAAAAA" : "#8E8E93",
       }}
     >
       <Tabs.Screen

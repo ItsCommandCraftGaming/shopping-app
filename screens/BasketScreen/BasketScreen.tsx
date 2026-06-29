@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAlert } from "../../hooks/useAlert";
 import { useCart } from "../../hooks/useCart";
+import { useTheme } from "../../context/ThemeProvider";
 
 export default function BasketScreen() {
     const router = useRouter();
@@ -26,6 +27,23 @@ export default function BasketScreen() {
         clearCart,
     } = useCart();
     const { showAlert } = useAlert();
+    const { isDarkMode } = useTheme();
+
+    const bgImageSource = isDarkMode
+        ? require("../../assets/images/dark-mode.png")
+        : require("../../assets/images/light-mode.png");
+
+    const textColor = isDarkMode ? "#F0F0F0" : "#1A1A1A";
+    const headerTextColor = isDarkMode ? "#FFFFFF" : "#000000";
+    const subTextColor = isDarkMode ? "#AAAAAA" : "#555555";
+    const glassBg = isDarkMode ? "rgba(30, 30, 30, 0.7)" : "rgba(255, 255, 255, 1)";
+    const glassBorder = isDarkMode ? "rgba(255, 255, 255, 0.15)" : "rgba(204, 203, 203, 0.8)";
+    const iconColor = isDarkMode ? "#FFFFFF" : "#1A1A1A";
+    const priceColor = isDarkMode ? "#66B2FF" : "#007AFF";
+    const buttonBg = isDarkMode ? "#FFFFFF" : "#1A1A1A";
+    const buttonIcon = isDarkMode ? "#1A1A1A" : "#FFFFFF";
+    const qtySelectorBg = isDarkMode ? "#333333" : "#F2F3F5";
+    const qtyBtnBg = isDarkMode ? "#555555" : "#FFFFFF";
 
     const handleCheckout = () => {
         if (items.length === 0) {
@@ -41,23 +59,21 @@ export default function BasketScreen() {
 
     return (
         <ImageBackground
-            source={{
-                uri: "https://www.everwallpaper.co.uk/cdn/shop/products/11dreamy-pink-paint-mural-wallpaper-plain.jpg?v=1739777834",
-            }}
+            source={bgImageSource}
             resizeMode="cover"
             style={styles.container}
         >
             <View style={styles.headerWrapper}>
                 <BlurView
                     intensity={20}
-                    tint="light"
+                    tint={isDarkMode ? "dark" : "light"}
                     style={StyleSheet.absoluteFillObject}
                     experimentalBlurMethod="dimezisBlurView"
                 />
                 <SafeAreaView edges={["top"]}>
                     <View style={styles.header}>
-                        <Text style={styles.headerTitle}>Coșul Meu</Text>
-                        <Text style={styles.headerSubtitle}>
+                        <Text style={[styles.headerTitle, { color: headerTextColor }]}>Coșul Meu</Text>
+                        <Text style={[styles.headerSubtitle, { color: subTextColor }]}>
                             {items.length === 0
                                 ? "Fără produse în coș"
                                 : `${items.length} produse active`}
@@ -68,29 +84,28 @@ export default function BasketScreen() {
 
             {items.length === 0 ? (
                 <View style={styles.emptyContainer}>
-                    <View style={styles.emptyCardWrapper}>
+                    <View style={[styles.emptyCardWrapper, { backgroundColor: isDarkMode ? "rgba(30, 30, 30, 0.4)" : "rgba(255, 255, 255, 0.2)", borderColor: glassBorder }]}>
                         <BlurView
                             intensity={20}
-                            tint="light"
+                            tint={isDarkMode ? "dark" : "light"}
                             style={StyleSheet.absoluteFillObject}
                             experimentalBlurMethod="dimezisBlurView"
                         />
                         <Ionicons
                             name="cart-outline"
                             size={64}
-                            color="#1A1A1A"
+                            color={iconColor}
                             style={{ marginBottom: 16 }}
                         />
-                        <Text style={styles.emptyText}>Coșul tău este gol</Text>
-                        <Text style={styles.emptySubtext}>
+                        <Text style={[styles.emptyText, { color: textColor }]}>Coșul tău este gol</Text>
+                        <Text style={[styles.emptySubtext, { color: textColor }]}>
                             Adaugă produse pentru a continua!
                         </Text>
                     </View>
                 </View>
-            ) : (
                 <ScrollView contentContainerStyle={styles.listContent}>
                     {items.map((item) => (
-                        <View key={item.id} style={styles.cartCard}>
+                        <View key={item.id} style={[styles.cartCard, { backgroundColor: glassBg, borderColor: glassBorder }]}>
                             {item.image && (
                                 <Image
                                     source={{ uri: item.image }}
@@ -99,41 +114,41 @@ export default function BasketScreen() {
                                 />
                             )}
                             <View style={styles.productInfo}>
-                                <Text style={styles.productName}>
+                                <Text style={[styles.productName, { color: textColor }]}>
                                     {item.name}
                                 </Text>
-                                <Text style={styles.productCategory}>
+                                <Text style={[styles.productCategory, { color: subTextColor }]}>
                                     {item.category}
                                 </Text>
-                                <Text style={styles.productPrice}>
+                                <Text style={[styles.productPrice, { color: priceColor }]}>
                                     {item.price} RON
                                 </Text>
                             </View>
 
                             <View style={styles.controlsContainer}>
-                                <View style={styles.quantitySelector}>
+                                <View style={[styles.quantitySelector, { backgroundColor: qtySelectorBg }]}>
                                     <TouchableOpacity
-                                        style={styles.quantityBtn}
+                                        style={[styles.quantityBtn, { backgroundColor: qtyBtnBg }]}
                                         onPress={() =>
                                             decreaseQuantity(item.id)
                                         }
                                     >
-                                        <Text style={styles.quantityBtnText}>
+                                        <Text style={[styles.quantityBtnText, { color: textColor }]}>
                                             -
                                         </Text>
                                     </TouchableOpacity>
 
-                                    <Text style={styles.quantityText}>
+                                    <Text style={[styles.quantityText, { color: textColor }]}>
                                         {item.quantity}
                                     </Text>
 
                                     <TouchableOpacity
-                                        style={styles.quantityBtn}
+                                        style={[styles.quantityBtn, { backgroundColor: qtyBtnBg }]}
                                         onPress={() =>
                                             increaseQuantity(item.id)
                                         }
                                     >
-                                        <Text style={styles.quantityBtnText}>
+                                        <Text style={[styles.quantityBtnText, { color: textColor }]}>
                                             +
                                         </Text>
                                     </TouchableOpacity>
@@ -157,24 +172,24 @@ export default function BasketScreen() {
                 <View style={styles.footerWrapper}>
                     <BlurView
                         intensity={80}
-                        tint="light"
+                        tint={isDarkMode ? "dark" : "light"}
                         style={StyleSheet.absoluteFillObject}
                     />
                     <View style={styles.footer}>
                         <View style={styles.totalRow}>
-                            <Text style={styles.totalLabel}>
+                            <Text style={[styles.totalLabel, { color: subTextColor }]}>
                                 Total de plată:
                             </Text>
-                            <Text style={styles.totalValue}>
+                            <Text style={[styles.totalValue, { color: textColor }]}>
                                 {calculateTotal().toFixed(2)} RON
                             </Text>
                         </View>
 
                         <TouchableOpacity
-                            style={styles.checkoutBtn}
+                            style={[styles.checkoutBtn, { backgroundColor: buttonBg }]}
                             onPress={handleCheckout}
                         >
-                            <Text style={styles.checkoutBtnText}>
+                            <Text style={[styles.checkoutBtnText, { color: buttonIcon }]}>
                                 Finalizează Comanda
                             </Text>
                         </TouchableOpacity>

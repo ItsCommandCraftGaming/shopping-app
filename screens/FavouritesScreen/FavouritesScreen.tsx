@@ -13,30 +13,44 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useCart } from "../../hooks/useCart";
 import { useFavourites } from "../../hooks/useFavourites";
+import { useTheme } from "../../context/ThemeProvider";
 
 export default function FavouritesScreen() {
     const { favourites, toggleFavourite } = useFavourites();
     const { addToCart } = useCart();
+    const { isDarkMode } = useTheme();
+
+    const bgImageSource = isDarkMode
+        ? require("../../assets/images/dark-mode.png")
+        : require("../../assets/images/light-mode.png");
+
+    const textColor = isDarkMode ? "#F0F0F0" : "#1A1A1A";
+    const headerTextColor = isDarkMode ? "#FFFFFF" : "#000000";
+    const subTextColor = isDarkMode ? "#AAAAAA" : "#555555";
+    const glassBg = isDarkMode ? "rgba(30, 30, 30, 0.7)" : "rgba(255, 255, 255, 1)";
+    const glassBorder = isDarkMode ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.8)";
+    const iconColor = isDarkMode ? "#FFFFFF" : "#1A1A1A";
+    const priceColor = isDarkMode ? "#66B2FF" : "#007AFF";
+    const buttonBg = isDarkMode ? "#FFFFFF" : "#1A1A1A";
+    const buttonIcon = isDarkMode ? "#1A1A1A" : "#FFFFFF";
 
     return (
         <ImageBackground
-            source={{
-                uri: "https://www.everwallpaper.co.uk/cdn/shop/products/11dreamy-pink-paint-mural-wallpaper-plain.jpg?v=1739777834",
-            }}
+            source={bgImageSource}
             resizeMode="cover"
             style={styles.container}
         >
             <View style={styles.headerWrapper}>
                 <BlurView
                     intensity={20}
-                    tint="light"
+                    tint={isDarkMode ? "dark" : "light"}
                     style={StyleSheet.absoluteFillObject}
                     experimentalBlurMethod="dimezisBlurView"
                 />
                 <SafeAreaView edges={["top"]}>
                     <View style={styles.header}>
-                        <Text style={styles.headerTitle}>Favorite</Text>
-                        <Text style={styles.headerSubtitle}>
+                        <Text style={[styles.headerTitle, { color: headerTextColor }]}>Favorite</Text>
+                        <Text style={[styles.headerSubtitle, { color: subTextColor }]}>
                             {favourites.length === 0
                                 ? "Nu ai produse favorite"
                                 : `${favourites.length} produse salvate`}
@@ -47,20 +61,20 @@ export default function FavouritesScreen() {
 
             {favourites.length === 0 ? (
                 <View style={styles.emptyContainer}>
-                    <View style={styles.emptyCardWrapper}>
+                    <View style={[styles.emptyCardWrapper, { backgroundColor: isDarkMode ? "rgba(30, 30, 30, 0.4)" : "rgba(255, 255, 255, 0.2)", borderColor: glassBorder }]}>
                         <BlurView
                             intensity={20}
-                            tint="light"
+                            tint={isDarkMode ? "dark" : "light"}
                             style={StyleSheet.absoluteFillObject}
                             experimentalBlurMethod="dimezisBlurView"
                         />
                         <Ionicons
                             name="heart-outline"
                             size={64}
-                            color="#1A1A1A"
+                            color={iconColor}
                             style={{ marginBottom: 16 }}
                         />
-                        <Text style={styles.emptyText}>
+                        <Text style={[styles.emptyText, { color: textColor }]}>
                             Lista ta de favorite este goală
                         </Text>
                     </View>
@@ -68,7 +82,7 @@ export default function FavouritesScreen() {
             ) : (
                 <ScrollView contentContainerStyle={styles.listContent}>
                     {favourites.map((item) => (
-                        <View key={item.id} style={styles.card}>
+                        <View key={item.id} style={[styles.card, { backgroundColor: glassBg, borderColor: glassBorder }]}>
                             {item.image && (
                                 <Image
                                     source={{ uri: item.image }}
@@ -77,11 +91,11 @@ export default function FavouritesScreen() {
                                 />
                             )}
                             <View style={styles.info}>
-                                <Text style={styles.name}>{item.name}</Text>
-                                <Text style={styles.category}>
+                                <Text style={[styles.name, { color: textColor }]}>{item.name}</Text>
+                                <Text style={[styles.category, { color: subTextColor }]}>
                                     {item.category}
                                 </Text>
-                                <Text style={styles.price}>
+                                <Text style={[styles.price, { color: priceColor }]}>
                                     {item.price} RON
                                 </Text>
                             </View>
@@ -98,12 +112,12 @@ export default function FavouritesScreen() {
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     onPress={() => addToCart(item)}
-                                    style={styles.cartBtn}
+                                    style={[styles.cartBtn, { backgroundColor: buttonBg }]}
                                 >
                                     <Ionicons
                                         name="cart-outline"
                                         size={20}
-                                        color="#FFFFFF"
+                                        color={buttonIcon}
                                     />
                                 </TouchableOpacity>
                             </View>

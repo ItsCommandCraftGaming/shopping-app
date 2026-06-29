@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
+import { useTheme } from "../../context/ThemeProvider";
 import {
     ActivityIndicator,
     FlatList,
@@ -26,6 +27,23 @@ export default function ProductsScreen() {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [isGridView, setIsGridView] = useState(true);
+    const { isDarkMode } = useTheme();
+
+    const bgImageSource = isDarkMode
+        ? require("../../assets/images/dark-mode.png")
+        : require("../../assets/images/light-mode.png");
+
+    const textColor = isDarkMode ? "#F0F0F0" : "#1A1A1A";
+    const headerTextColor = isDarkMode ? "#FFFFFF" : "#000000";
+    const glassBg = isDarkMode ? "rgba(30, 30, 30, 0.7)" : "rgba(255, 255, 255, 1)";
+    const glassBorder = isDarkMode ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.8)";
+    const iconColor = isDarkMode ? "#FFFFFF" : "#1A1A1A";
+    const searchBg = isDarkMode ? "rgba(30, 30, 30, 0.6)" : "rgba(255, 255, 255, 0.6)";
+    const priceColor = isDarkMode ? "#66B2FF" : "#007AFF";
+    const favBg = isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)";
+    const buttonBg = isDarkMode ? "#FFFFFF" : "#1A1A1A";
+    const buttonIcon = isDarkMode ? "#1A1A1A" : "#FFFFFF";
+    const buttonDisabled = isDarkMode ? "#555555" : "#D1D1D6";
 
     // Fetch products based on the selected category slug
     const { data, loading } = useFetch(
@@ -61,7 +79,7 @@ export default function ProductsScreen() {
                         });
                     }}
                 >
-                    <View style={styles.glassContainerList}>
+                    <View style={[styles.glassContainerList, { backgroundColor: glassBg, borderColor: glassBorder }]}>
                         {item.thumbnail ? (
                             <View style={{ position: "relative" }}>
                                 <Image
@@ -95,7 +113,7 @@ export default function ProductsScreen() {
                         )}
                         <View style={styles.infoContainerList}>
                             <Text
-                                style={styles.productTitleList}
+                                style={[styles.productTitleList, { color: textColor }]}
                                 numberOfLines={2}
                             >
                                 {item.title}
@@ -135,7 +153,7 @@ export default function ProductsScreen() {
                                         gap: 6,
                                     }}
                                 >
-                                    <Text style={styles.productPriceList}>
+                                    <Text style={[styles.productPriceList, { color: priceColor }]}>
                                         ${item.price}
                                     </Text>
                                     {item.discountPercentage > 0 && (
@@ -152,7 +170,7 @@ export default function ProductsScreen() {
                                 </View>
                                 <View style={styles.actionButtons}>
                                     <TouchableOpacity
-                                        style={styles.favSmallBtn}
+                                        style={[styles.favSmallBtn, { backgroundColor: favBg }]}
                                         onPress={(e) => {
                                             toggleFavourite({
                                                 id: item.id.toString(),
@@ -174,16 +192,17 @@ export default function ProductsScreen() {
                                             color={
                                                 isFavourite(item.id.toString())
                                                     ? "#FF3B30"
-                                                    : "#1A1A1A"
+                                                    : iconColor
                                             }
                                         />
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         style={[
                                             styles.addToCartSmallBtn,
+                                            { backgroundColor: buttonBg },
                                             item.availabilityStatus ===
                                             "Out of Stock"
-                                                ? { backgroundColor: "#D1D1D6" }
+                                                ? { backgroundColor: buttonDisabled }
                                                 : {},
                                         ]}
                                         disabled={
@@ -204,7 +223,7 @@ export default function ProductsScreen() {
                                         <Ionicons
                                             name="cart"
                                             size={18}
-                                            color="#FFF"
+                                            color={buttonIcon}
                                         />
                                     </TouchableOpacity>
                                 </View>
@@ -229,7 +248,7 @@ export default function ProductsScreen() {
                     });
                 }}
             >
-                <View style={styles.glassContainer}>
+                <View style={[styles.glassContainer, { backgroundColor: glassBg, borderColor: glassBorder }]}>
                     {item.thumbnail ? (
                         <View style={{ position: "relative" }}>
                             <Image
@@ -255,7 +274,7 @@ export default function ProductsScreen() {
                         </View>
                     )}
                     <View style={styles.infoContainer}>
-                        <Text style={styles.productTitle} numberOfLines={1}>
+                        <Text style={[styles.productTitle, { color: textColor }]} numberOfLines={1}>
                             {item.title}
                         </Text>
 
@@ -287,7 +306,7 @@ export default function ProductsScreen() {
 
                         <View style={styles.priceRow}>
                             <View>
-                                <Text style={styles.productPrice}>
+                                <Text style={[styles.productPrice, { color: priceColor }]}>
                                     ${item.price}
                                 </Text>
                                 {item.discountPercentage > 0 && (
@@ -302,7 +321,7 @@ export default function ProductsScreen() {
                             </View>
                             <View style={styles.actionButtons}>
                                 <TouchableOpacity
-                                    style={styles.favSmallBtn}
+                                    style={[styles.favSmallBtn, { backgroundColor: favBg }]}
                                     onPress={(e) => {
                                         toggleFavourite({
                                             id: item.id.toString(),
@@ -324,16 +343,17 @@ export default function ProductsScreen() {
                                         color={
                                             isFavourite(item.id.toString())
                                                 ? "#FF3B30"
-                                                : "#1A1A1A"
+                                                : iconColor
                                         }
                                     />
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={[
                                         styles.addToCartSmallBtn,
+                                        { backgroundColor: buttonBg },
                                         item.availabilityStatus ===
                                         "Out of Stock"
-                                            ? { backgroundColor: "#D1D1D6" }
+                                            ? { backgroundColor: buttonDisabled }
                                             : {},
                                     ]}
                                     disabled={
@@ -354,7 +374,7 @@ export default function ProductsScreen() {
                                     <Ionicons
                                         name="cart"
                                         size={18}
-                                        color="#FFF"
+                                        color={buttonIcon}
                                     />
                                 </TouchableOpacity>
                             </View>
@@ -367,9 +387,7 @@ export default function ProductsScreen() {
 
     return (
         <ImageBackground
-            source={{
-                uri: "https://www.everwallpaper.co.uk/cdn/shop/products/11dreamy-pink-paint-mural-wallpaper-plain.jpg?v=1739777834",
-            }}
+            source={bgImageSource}
             resizeMode="cover"
             style={styles.container}
         >
@@ -396,7 +414,7 @@ export default function ProductsScreen() {
             <View style={styles.headerWrapper}>
                 <BlurView
                     intensity={20}
-                    tint="light"
+                    tint={isDarkMode ? "dark" : "light"}
                     style={StyleSheet.absoluteFillObject}
                     experimentalBlurMethod="dimezisBlurView"
                 />
@@ -404,41 +422,41 @@ export default function ProductsScreen() {
                     <View style={styles.headerRow}>
                         <TouchableOpacity
                             onPress={() => router.back()}
-                            style={styles.backButton}
+                            style={[styles.backButton, { backgroundColor: searchBg }]}
                             activeOpacity={0.7}
                         >
                             <Ionicons
                                 name="arrow-back"
                                 size={24}
-                                color="#000"
+                                color={iconColor}
                             />
                         </TouchableOpacity>
 
-                        <Text style={styles.title} numberOfLines={1}>
+                        <Text style={[styles.title, { color: headerTextColor }]} numberOfLines={1}>
                             {products || "Products"}
                         </Text>
 
                         <TouchableOpacity
                             onPress={() => setIsGridView(!isGridView)}
-                            style={styles.viewToggleBtn}
+                            style={[styles.viewToggleBtn, { backgroundColor: searchBg }]}
                             activeOpacity={0.7}
                         >
                             <Ionicons
                                 name={isGridView ? "list" : "grid"}
                                 size={22}
-                                color="#000"
+                                color={iconColor}
                             />
                         </TouchableOpacity>
                     </View>
 
-                    <View style={styles.searchContainer}>
-                        <Ionicons name="search" size={20} color="#888" />
+                    <View style={[styles.searchContainer, { backgroundColor: searchBg, borderColor: glassBorder }]}>
+                        <Ionicons name="search" size={20} color={iconColor} />
                         <TextInput
-                            style={styles.searchInput}
+                            style={[styles.searchInput, { color: textColor }]}
                             placeholder="Caută produse..."
                             value={searchQuery}
                             onChangeText={setSearchQuery}
-                            placeholderTextColor="#888"
+                            placeholderTextColor={isDarkMode ? "#AAA" : "#888"}
                             autoCapitalize="none"
                             autoCorrect={false}
                         />
