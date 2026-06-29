@@ -6,6 +6,7 @@ import {
     Text,
     TouchableOpacity,
     View,
+    Image,
 } from "react-native";
 import { useCart } from "../../context/CartContext";
 
@@ -46,6 +47,9 @@ export default function BasketScreen() {
                 <ScrollView style={styles.listContainer}>
                     {items.map((item) => (
                         <View key={item.id} style={styles.cartCard}>
+                            {item.image && (
+                                <Image source={{ uri: item.image }} style={styles.cartItemImage} resizeMode="contain" />
+                            )}
                             <View style={styles.productInfo}>
                                 <Text style={styles.productName}>
                                     {item.name}
@@ -170,6 +174,13 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.05,
         shadowRadius: 8,
         elevation: 2,
+    },
+    cartItemImage: {
+        width: 60,
+        height: 60,
+        borderRadius: 10,
+        marginRight: 12,
+        backgroundColor: "#F2F3F5",
     },
     productInfo: {
         flex: 1,

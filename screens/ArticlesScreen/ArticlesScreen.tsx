@@ -237,7 +237,8 @@ export default function ArticlesScreen() {
                                 id: prod.id.toString(),
                                 name: prod.title,
                                 price: prod.price,
-                                category: prod.category
+                                category: prod.category,
+                                image: prod.thumbnail
                             });
                         }}
                     >

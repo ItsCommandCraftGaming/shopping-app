@@ -71,7 +71,8 @@ export default function ProductsScreen() {
                                         id: item.id.toString(),
                                         name: item.title,
                                         price: item.price,
-                                        category: item.category || "General"
+                                        category: item.category || "General",
+                                        image: item.thumbnail
                                     });
                                 }}
                             >
