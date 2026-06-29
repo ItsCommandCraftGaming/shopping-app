@@ -46,6 +46,17 @@ export default function ArticlesScreen() {
     );
 
     const [isExpanded, setIsExpanded] = useState(false);
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+    const onImageScroll = (event: any) => {
+        const slideSize = event.nativeEvent.layoutMeasurement.width;
+        const index = event.nativeEvent.contentOffset.x / slideSize;
+        const roundIndex = Math.round(index);
+        if (roundIndex !== activeImageIndex) {
+            setActiveImageIndex(roundIndex);
+        }
+    };
+
     const expandAnim = React.useRef(new Animated.Value(0)).current;
 
     // Keep a ref to the current state so the PanResponder can always access the latest value
@@ -121,11 +132,46 @@ export default function ArticlesScreen() {
                 contentContainerStyle={styles.scrollContent}
             >
                 <View style={styles.imageContainer}>
-                    <Image
-                        source={{ uri: prod.thumbnail }}
-                        style={styles.image}
-                        resizeMode="cover"
-                    />
+                    {prod.images && prod.images.length > 0 ? (
+                        <View>
+                            <ScrollView
+                                horizontal
+                                pagingEnabled
+                                showsHorizontalScrollIndicator={false}
+                                onScroll={onImageScroll}
+                                scrollEventThrottle={16}
+                                style={{ width, height: width * 1.1 }}
+                            >
+                                {prod.images.map((imgUri: string, index: number) => (
+                                    <Image
+                                        key={index}
+                                        source={{ uri: imgUri }}
+                                        style={{ width, height: width * 1.1 }}
+                                        resizeMode="cover"
+                                    />
+                                ))}
+                            </ScrollView>
+                            {prod.images.length > 1 && (
+                                <View style={styles.paginationContainer}>
+                                    {prod.images.map((_: any, index: number) => (
+                                        <View
+                                            key={index}
+                                            style={[
+                                                styles.dot,
+                                                activeImageIndex === index ? styles.activeDot : {}
+                                            ]}
+                                        />
+                                    ))}
+                                </View>
+                            )}
+                        </View>
+                    ) : (
+                        <Image
+                            source={{ uri: prod.thumbnail }}
+                            style={styles.image}
+                            resizeMode="cover"
+                        />
+                    )}
                 </View>
 
                 <View style={styles.detailsContainer}>
@@ -350,6 +396,26 @@ const styles = StyleSheet.create({
     image: {
         width: "100%",
         height: "100%",
+    },
+    paginationContainer: {
+        position: "absolute",
+        bottom: 50,
+        left: 0,
+        right: 0,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    dot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: "rgba(0, 0, 0, 0.2)",
+        marginHorizontal: 4,
+    },
+    activeDot: {
+        width: 20,
+        backgroundColor: "#1A1A1A",
     },
     backButtonSafeArea: {
         position: "absolute",
